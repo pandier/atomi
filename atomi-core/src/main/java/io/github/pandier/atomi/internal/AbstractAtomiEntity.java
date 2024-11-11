@@ -30,14 +30,14 @@ public abstract class AbstractAtomiEntity implements AtomiEntity {
 
     @Override
     public @NotNull Tristate permission(@NotNull String permission) {
+        Tristate value = directPermission(permission);
+        if (value != Tristate.UNSET)
+            return value;
         for (AtomiEntity parent : parents()) {
             Tristate parentValue = parent.permission(permission);
             if (parentValue != Tristate.UNSET)
                 return parentValue;
         }
-        Tristate value = directPermission(permission);
-        if (value != Tristate.UNSET)
-            return value;
         return defaultPermission(permission);
     }
 
