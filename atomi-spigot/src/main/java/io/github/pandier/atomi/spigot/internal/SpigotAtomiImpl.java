@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 @ApiStatus.Internal
 public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
@@ -32,7 +33,7 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     protected final Map<String, BukkitTask> groupUpdateTasks = new ConcurrentHashMap<>();
 
     SpigotAtomiImpl(Path path, Plugin plugin) {
-        super(path, plugin.getLogger());
+        super(path, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
         this.plugin = plugin;
     }
 

@@ -17,8 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 @ApiStatus.Internal
@@ -28,7 +27,7 @@ public abstract class AbstractAtomi implements Atomi {
 
     protected final String DEFAULT_GROUP_NAME = "default";
 
-    protected final Logger logger;
+    protected final BiConsumer<String, Throwable> severeLogger;
     protected final UserFactory userFactory;
     protected final GroupFactory groupFactory;
     protected final DefaultPermissionProvider defaultPermissionProvider;
@@ -39,8 +38,8 @@ public abstract class AbstractAtomi implements Atomi {
     protected final Map<String, AtomiGroup> groups;
     protected final Map<UUID, AtomiUser> userCache = new HashMap<>();
 
-    protected AbstractAtomi(Path path, Logger logger) {
-        this.logger = logger;
+    protected AbstractAtomi(Path path, BiConsumer<String, Throwable> severeLogger) {
+        this.severeLogger = severeLogger;
         this.userFactory = createUserFactory();
         this.groupFactory = createGroupFactory();
         this.defaultPermissionProvider = createDefaultPermissionProvider();
@@ -161,7 +160,7 @@ public abstract class AbstractAtomi implements Atomi {
         try {
             userStorage.save(user);
         } catch (StorageException e) {
-            logger.log(Level.SEVERE, "Failed saving user " + user.uuid() + " after update", e);
+            severeLogger.accept("Failed saving user " + user.uuid() + " after update", e);
         }
     }
 
@@ -169,7 +168,7 @@ public abstract class AbstractAtomi implements Atomi {
         try {
             groupStorage.save(groups);
         } catch (StorageException e) {
-            logger.log(Level.SEVERE, "Failed saving groups after update", e);
+            severeLogger.accept("Failed saving groups after update", e);
         }
     }
 
