@@ -47,14 +47,14 @@ public abstract class AbstractAtomiEntity implements AtomiEntity {
 
     @Override
     public @NotNull Tristate directPermission(@NotNull String permission) {
-        if (!atomi.isValidPermission(permission))
+        if (!atomi.permissionValidityPredicate().test(permission))
             return Tristate.UNSET;
         return permissionTree.get(permission);
     }
 
     @Override
     public void setPermission(@NotNull String permission, @NotNull Tristate value) {
-        if (!atomi.isValidPermission(permission))
+        if (!atomi.permissionValidityPredicate().test(permission))
             throw new IllegalArgumentException("Permission '" + permission + "' contains illegal characters");
         permissionTree.set(permission, value);
         update();

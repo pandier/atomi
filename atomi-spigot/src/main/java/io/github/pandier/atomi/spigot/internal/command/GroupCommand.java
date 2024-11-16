@@ -103,7 +103,7 @@ public class GroupCommand {
     }
 
     private static int setPermission(CommandSender sender, String groupName, String permission, Tristate value) {
-        if (!SpigotAtomi.get().isValidPermission(permission)) {
+        if (!SpigotAtomi.get().permissionValidityPredicate().test(permission)) {
             Commands.send(sender, Component.text("Permission '" + permission + "' contains illegal characters").color(NamedTextColor.RED), true);
             return 0;
         }
