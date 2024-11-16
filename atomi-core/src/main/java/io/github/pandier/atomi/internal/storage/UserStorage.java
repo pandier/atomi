@@ -12,6 +12,8 @@ public interface UserStorage {
 
     void save(@NotNull AtomiUser user) throws StorageException;
 
+    boolean exists(@NotNull UUID uuid);
+
     void delete(@NotNull UUID uuid) throws StorageException;
 
     default void delete(@NotNull AtomiUser user) throws StorageException {

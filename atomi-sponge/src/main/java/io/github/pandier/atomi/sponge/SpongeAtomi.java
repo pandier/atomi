@@ -16,6 +16,6 @@ public interface SpongeAtomi extends Atomi {
 
     @NotNull
     default AtomiUser user(@NotNull ServerPlayer player) {
-        return getOrCreateUser(player.uniqueId());
+        return user(player.uniqueId());
     }
 }

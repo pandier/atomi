@@ -18,12 +18,15 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @ApiStatus.Internal
 public abstract class AbstractAtomi implements Atomi {
     protected static final Pattern GROUP_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+]+$");
     protected static final Pattern PERMISSION_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+*]+$");
+    protected static final Predicate<String> GROUP_NAME_VALIDITY_PREDICATE = x -> GROUP_NAME_PATTERN.matcher(x).matches();
+    protected static final Predicate<String> PERMISSION_VALIDITY_PREDICATE = x -> PERMISSION_PATTERN.matcher(x).matches();
 
     protected final String DEFAULT_GROUP_NAME = "default";
 
@@ -77,7 +80,16 @@ public abstract class AbstractAtomi implements Atomi {
     }
 
     @Override
-    public @NotNull Optional<AtomiUser> user(@NotNull UUID uuid) {
+    public @NotNull AtomiUser user(@NotNull UUID uuid) {
+        return userOptional(uuid).orElseGet(() -> {
+            AtomiUser user = userFactory.createDefault(uuid);
+            userCache.put(uuid, user);
+            return user;
+        });
+    }
+
+    @Override
+    public @NotNull Optional<AtomiUser> userOptional(@NotNull UUID uuid) {
         if (userCache.containsKey(uuid))
             return Optional.of(userCache.get(uuid));
 
@@ -93,12 +105,13 @@ public abstract class AbstractAtomi implements Atomi {
     }
 
     @Override
-    public @NotNull AtomiUser getOrCreateUser(@NotNull UUID uuid) {
-        return user(uuid).orElseGet(() -> {
-            AtomiUser user = userFactory.createDefault(uuid);
-            userCache.put(uuid, user);
-            return user;
-        });
+    public boolean userExists(@NotNull UUID uuid) {
+        return userStorage.exists(uuid);
+    }
+
+    @Override
+    public @NotNull Optional<AtomiUser> userFromCache(@NotNull UUID uuid) {
+        return Optional.ofNullable(userCache.get(uuid));
     }
 
     @Override
@@ -107,8 +120,13 @@ public abstract class AbstractAtomi implements Atomi {
     }
 
     @Override
+    public boolean groupExists(@NotNull String name) {
+        return groups.containsKey(name);
+    }
+
+    @Override
     public @NotNull AtomiGroup getOrCreateGroup(@NotNull String name) {
-        if (!isValidGroupName(name))
+        if (!groupNameValidityPredicate().test(name))
             throw new IllegalArgumentException("Group name '" + name + "' contains illegal characters");
         return groups.computeIfAbsent(name, groupFactory::createDefault);
     }
@@ -139,12 +157,12 @@ public abstract class AbstractAtomi implements Atomi {
 
     @Override
     public @NotNull Set<String> groupNames() {
-        return Collections.unmodifiableSet(groups.keySet());
+        return Set.copyOf(groups.keySet());
     }
 
     @Override
     public @NotNull Collection<AtomiGroup> groups() {
-        return Collections.unmodifiableCollection(groups.values());
+        return List.copyOf(groups.values());
     }
 
     @Override
@@ -177,12 +195,12 @@ public abstract class AbstractAtomi implements Atomi {
     }
 
     @Override
-    public boolean isValidGroupName(@NotNull String name) {
-        return GROUP_NAME_PATTERN.matcher(name).matches();
+    public @NotNull Predicate<String> groupNameValidityPredicate() {
+        return GROUP_NAME_VALIDITY_PREDICATE;
     }
 
     @Override
-    public boolean isValidPermission(@NotNull String permission) {
-        return PERMISSION_PATTERN.matcher(permission).matches();
+    public @NotNull Predicate<String> permissionValidityPredicate() {
+        return PERMISSION_VALIDITY_PREDICATE;
     }
 }

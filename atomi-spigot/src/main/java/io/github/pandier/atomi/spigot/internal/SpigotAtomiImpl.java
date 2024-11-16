@@ -103,8 +103,8 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     }
 
     public void initiatePlayer(@NotNull Player player) {
-        AtomiPermissibleInjector.inject(player, (previous) -> createPermissible(player, previous), logger);
-        user(player.getUniqueId()); // Preload the user into cache
+        AtomiPermissibleInjector.inject(player, (previous) -> createPermissible(player, previous), plugin.getLogger());
+        userOptional(player.getUniqueId()); // Preload the user into cache
     }
 
     public void uninitiatePlayer(@NotNull Player player) {

@@ -75,6 +75,11 @@ public class MultiJsonUserStorage implements UserStorage {
     }
 
     @Override
+    public boolean exists(@NotNull UUID uuid) {
+        return Files.exists(getPathFor(uuid));
+    }
+
+    @Override
     public void delete(@NotNull UUID uuid) throws StorageException {
         try {
             Files.deleteIfExists(getPathFor(uuid));

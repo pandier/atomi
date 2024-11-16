@@ -16,6 +16,6 @@ public interface SpigotAtomi extends Atomi {
 
     @NotNull
     default AtomiUser user(@NotNull OfflinePlayer player) {
-        return getOrCreateUser(player.getUniqueId());
+        return user(player.getUniqueId());
     }
 }
