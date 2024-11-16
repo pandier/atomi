@@ -30,7 +30,7 @@ public abstract class AbstractAtomi implements Atomi {
 
     protected final String DEFAULT_GROUP_NAME = "default";
 
-    protected final BiConsumer<String, Throwable> severeLogger;
+    protected final BiConsumer<String, Throwable> errorLogger;
     protected final UserFactory userFactory;
     protected final GroupFactory groupFactory;
     protected final DefaultPermissionProvider defaultPermissionProvider;
@@ -41,8 +41,8 @@ public abstract class AbstractAtomi implements Atomi {
     protected final Map<String, AtomiGroup> groups;
     protected final Map<UUID, AtomiUser> userCache = new HashMap<>();
 
-    protected AbstractAtomi(Path path, BiConsumer<String, Throwable> severeLogger) {
-        this.severeLogger = severeLogger;
+    protected AbstractAtomi(Path path, BiConsumer<String, Throwable> errorLogger) {
+        this.errorLogger = errorLogger;
         this.userFactory = createUserFactory();
         this.groupFactory = createGroupFactory();
         this.defaultPermissionProvider = createDefaultPermissionProvider();
@@ -178,7 +178,7 @@ public abstract class AbstractAtomi implements Atomi {
         try {
             userStorage.save(user);
         } catch (StorageException e) {
-            severeLogger.accept("Failed saving user " + user.uuid() + " after update", e);
+            errorLogger.accept("Failed saving user " + user.uuid() + " after update", e);
         }
     }
 
@@ -186,7 +186,7 @@ public abstract class AbstractAtomi implements Atomi {
         try {
             groupStorage.save(groups);
         } catch (StorageException e) {
-            severeLogger.accept("Failed saving groups after update", e);
+            errorLogger.accept("Failed saving groups after update", e);
         }
     }
 
