@@ -7,6 +7,11 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public interface SpigotAtomi extends Atomi {
+
+    static boolean isAvailable() {
+        return SpigotAtomiPlugin.atomi != null;
+    }
+
     @NotNull
     static SpigotAtomi get() {
         if (SpigotAtomiPlugin.atomi == null)

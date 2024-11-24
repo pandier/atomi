@@ -7,6 +7,11 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 public interface SpongeAtomi extends Atomi {
+
+    static boolean isAvailable() {
+        return SpongeAtomiPlugin.atomi != null;
+    }
+
     @NotNull
     static SpongeAtomi get() {
         if (SpongeAtomiPlugin.atomi == null)
