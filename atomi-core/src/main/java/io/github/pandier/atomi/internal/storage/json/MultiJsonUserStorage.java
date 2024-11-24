@@ -69,6 +69,13 @@ public class MultiJsonUserStorage implements UserStorage {
         Path path = getPathFor(entity.uuid());
 
         try {
+            // Delete entities with empty json objects to optimize file count
+            if (jsonObject.isEmpty()) {
+                if (Files.exists(path))
+                    Files.delete(path);
+                return;
+            }
+
             if (!Files.exists(path.getParent()))
                 Files.createDirectories(path.getParent());
             Files.writeString(path, gson.toJson(jsonObject));

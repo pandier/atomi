@@ -3,6 +3,7 @@ package io.github.pandier.atomi.internal.storage.json.serializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.pandier.atomi.AtomiEntityData;
+import io.github.pandier.atomi.internal.AtomiEntityDataImpl;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -14,21 +15,39 @@ import java.util.Map;
 import java.util.function.Function;
 
 @ApiStatus.Internal
-public abstract class EntityJsonSerializer {
+public class EntityJsonSerializer {
     protected static final GsonComponentSerializer ADVENTURE_SERIALIZER = GsonComponentSerializer.gson();
 
-    protected void serializeEntity(@NotNull JsonObject jsonEntity, @NotNull AtomiEntityData data) {
+    @NotNull
+    public JsonObject serialize(@NotNull AtomiEntityData data) {
+        JsonObject jsonEntity = new JsonObject();
+
+        // Metadata
         JsonObject jsonMetadata = new JsonObject();
         data.prefix().ifPresent(component -> jsonMetadata.add("prefix", ADVENTURE_SERIALIZER.serializeToTree(component)));
         data.suffix().ifPresent(component -> jsonMetadata.add("suffix", ADVENTURE_SERIALIZER.serializeToTree(component)));
         data.color().ifPresent(color -> jsonMetadata.add("color", ADVENTURE_SERIALIZER.serializer().toJsonTree(color)));
-        jsonEntity.add("metadata", jsonMetadata);
+        if (!jsonMetadata.isEmpty())
+            jsonEntity.add("metadata", jsonMetadata);
 
+        // Permissions
         JsonObject permissions = new JsonObject();
-        for (Map.Entry<String, Boolean> entry : data.permissions().entrySet()) {
+        for (Map.Entry<String, Boolean> entry : data.permissions().entrySet())
             permissions.addProperty(entry.getKey(), entry.getValue());
-        }
-        jsonEntity.add("permissions", permissions);
+        if (!permissions.isEmpty())
+            jsonEntity.add("permissions", permissions);
+
+        return jsonEntity;
+    }
+
+    @NotNull
+    public AtomiEntityDataImpl deserialize(@NotNull JsonObject jsonEntity) {
+        return new AtomiEntityDataImpl(
+                deserializePermissions(jsonEntity),
+                deserializePrefix(jsonEntity),
+                deserializeSuffix(jsonEntity),
+                deserializeColor(jsonEntity)
+        );
     }
 
     protected <T> T deserializeMetadataElement(@NotNull JsonObject jsonEntity, @NotNull String name, Function<JsonElement, T> function) {

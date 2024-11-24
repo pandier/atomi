@@ -19,12 +19,12 @@ public class UserJsonSerializer extends EntityJsonSerializer {
 
     @NotNull
     public JsonObject serialize(@NotNull AtomiUserData data) {
-        JsonObject jsonUser = new JsonObject();
-        super.serializeEntity(jsonUser, data);
+        JsonObject jsonUser = super.serialize(data);
 
         AtomiGroup group = data.group();
         if (!group.isDefault())
             jsonUser.addProperty("group", group.name());
+
         return jsonUser;
     }
 
