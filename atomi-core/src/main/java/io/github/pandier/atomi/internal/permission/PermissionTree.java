@@ -87,6 +87,16 @@ public class PermissionTree {
         node.value = value;
     }
 
+    public void setAll(@NotNull Map<String, Boolean> permissions) {
+        for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
+            set(entry.getKey(), Tristate.of(entry.getValue()));
+        }
+    }
+
+    public void clear() {
+        children.clear();
+    }
+
     @NotNull
     public Map<String, Boolean> asMap() {
         Map<String, Boolean> map = new HashMap<>();

@@ -5,7 +5,7 @@ plugins {
     id("atomi.java-conventions")
     id("atomi.publication-conventions")
     id("org.spongepowered.gradle.plugin") version "2.2.0"
-//    id("com.gradleup.shadow") version "8.3.4"
+    id("com.gradleup.shadow") version "8.3.4"
 }
 
 dependencies {
@@ -20,6 +20,7 @@ sponge {
         version("1.0")
     }
     plugin("atomi") {
+        displayName("Atomi")
         entrypoint("io.github.pandier.atomi.sponge.internal.SpongeAtomiPlugin")
         description(project.description)
         dependency("spongeapi") {

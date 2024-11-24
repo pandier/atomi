@@ -3,10 +3,7 @@ package io.github.pandier.atomi.sponge.internal;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.SubjectCollection;
-import org.spongepowered.api.service.permission.SubjectData;
-import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.service.permission.*;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.*;
@@ -119,6 +116,7 @@ public class FactorySubjectCollection implements SubjectCollection {
 
     public class FactorySubject implements Subject {
         private final String identifier;
+        private final MemorySubjectData data = new MemorySubjectData(this);
 
         public FactorySubject(String identifier) {
             this.identifier = identifier;
@@ -151,12 +149,12 @@ public class FactorySubjectCollection implements SubjectCollection {
 
         @Override
         public SubjectData transientSubjectData() {
-            throw new UnsupportedOperationException(); // TODO
+            return this.data;
         }
 
         @Override
         public Tristate permissionValue(String permission, Cause cause) {
-            throw new UnsupportedOperationException(); // TODO
+            return this.data.permissionValue(permission);
         }
 
         @Override

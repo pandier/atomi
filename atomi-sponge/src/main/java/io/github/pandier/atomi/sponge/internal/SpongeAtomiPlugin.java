@@ -17,19 +17,17 @@ import java.nio.file.Path;
 public class SpongeAtomiPlugin {
     public static SpongeAtomi atomi;
 
-    @Inject
-    private Logger logger;
+    private final Logger logger;
 
     @Inject
-    @ConfigDir(sharedRoot = false)
-    private Path configPath;
-
-    public SpongeAtomiPlugin() {
+    public SpongeAtomiPlugin(Logger logger, @ConfigDir(sharedRoot = false) Path configPath) {
+        this.logger = logger;
         atomi = new SpongeAtomiImpl(configPath, logger);
     }
 
     @Listener
     private void providePermissionService(ProvideServiceEvent.EngineScoped<PermissionService> event) {
+        final SpongeAtomi atomi = SpongeAtomiPlugin.atomi;
         if (atomi != null) {
             event.suggest(() -> new AtomiPermissionService(atomi));
         } else {

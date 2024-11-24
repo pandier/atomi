@@ -1,16 +1,16 @@
 package io.github.pandier.atomi.sponge.internal;
 
+import io.github.pandier.atomi.AtomiGroup;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.util.Tristate;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @ApiStatus.Internal
@@ -57,22 +57,32 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        return CompletableFuture.completedFuture(findWithPermission(permission, x -> newSubjectReference(x.name())));
     }
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission, Cause cause) {
-        throw new UnsupportedOperationException(); // TODO
+        return allWithPermission(permission);
     }
 
     @Override
     public Map<? extends Subject, Boolean> loadedWithPermission(String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        return findWithPermission(permission, x -> new GroupSubject(x, this));
     }
 
     @Override
     public Map<? extends Subject, Boolean> loadedWithPermission(String permission, Cause cause) {
-        throw new UnsupportedOperationException(); // TODO
+        return loadedWithPermission(permission);
+    }
+
+    private <S> Map<S, Boolean> findWithPermission(String permission, Function<AtomiGroup, S> groupMapper) {
+        Map<S, Boolean> result = new HashMap<>();
+        for (AtomiGroup group : atomi().groups()) {
+            Tristate value = TristateUtil.spongeTristate(group.permission(permission));
+            if (value != Tristate.UNDEFINED)
+                result.put(groupMapper.apply(group), value.asBoolean());
+        }
+        return result;
     }
 
     @Override
