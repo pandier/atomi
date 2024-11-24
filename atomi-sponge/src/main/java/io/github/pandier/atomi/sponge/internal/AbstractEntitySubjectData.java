@@ -24,21 +24,21 @@ public abstract class AbstractEntitySubjectData implements SubjectData {
 
     @Override
     public Map<Set<Context>, Map<String, Boolean>> allPermissions() {
-        return Map.of(SubjectData.GLOBAL_CONTEXT, subject().entity().directPermissions());
+        return Map.of(SubjectData.GLOBAL_CONTEXT, subject().entity().data().permissions());
     }
 
     @Override
     public Map<String, Boolean> permissions(Set<Context> contexts) {
         if (!contexts.isEmpty())
             return Map.of();
-        return subject().entity().directPermissions();
+        return subject().entity().data().permissions();
     }
 
     @Override
     public CompletableFuture<Boolean> setPermission(Set<Context> contexts, String permission, Tristate value) {
         if (!contexts.isEmpty())
             return CompletableFuture.completedFuture(false);
-        subject().entity().setPermission(permission, TristateUtil.atomiTristate(value));
+        subject().entity().data().setPermission(permission, TristateUtil.atomiTristate(value));
         return CompletableFuture.completedFuture(true);
     }
 

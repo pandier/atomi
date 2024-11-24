@@ -19,12 +19,14 @@ import java.util.Map;
 
 @ApiStatus.Internal
 public class SingleJsonGroupStorage implements GroupStorage {
+    private final GroupFactory groupFactory;
     private final GroupJsonSerializer groupSerializer;
     private final Path path;
     private final Gson gson;
 
     public SingleJsonGroupStorage(@NotNull Path path, @NotNull GroupFactory groupFactory, @NotNull Gson gson) {
-        this.groupSerializer = new GroupJsonSerializer(groupFactory);
+        this.groupFactory = groupFactory;
+        this.groupSerializer = new GroupJsonSerializer();
         this.path = path;
         this.gson = gson;
     }
@@ -47,7 +49,7 @@ public class SingleJsonGroupStorage implements GroupStorage {
             JsonObject object = gson.fromJson(content, JsonObject.class);
             for (Map.Entry<String, JsonElement> groupEntry : object.entrySet()) {
                 JsonObject jsonGroup = groupEntry.getValue().getAsJsonObject();
-                AtomiGroup group = groupSerializer.deserialize(jsonGroup, groupEntry.getKey());
+                AtomiGroup group = groupFactory.create(groupEntry.getKey(), groupSerializer.deserialize(jsonGroup));
                 groups.put(groupEntry.getKey(), group);
             }
         } catch (Exception e) {
@@ -62,7 +64,7 @@ public class SingleJsonGroupStorage implements GroupStorage {
         JsonObject jsonObject = new JsonObject();
         try {
             for (Map.Entry<String, AtomiGroup> entry : groups.entrySet()) {
-                JsonObject jsonGroup = groupSerializer.serialize(entry.getValue());
+                JsonObject jsonGroup = groupSerializer.serialize(entry.getValue().data());
                 jsonObject.add(entry.getKey(), jsonGroup);
             }
         } catch (Exception e) {

@@ -1,7 +1,7 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
 import dev.jorel.commandapi.arguments.*;
-import io.github.pandier.atomi.AtomiMetadata;
+import io.github.pandier.atomi.AtomiEntity;
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
@@ -34,9 +34,9 @@ public class UserCommand {
                                                     return setPermission(sender, (OfflinePlayer) args.get("player"), (String) args.get("permission"), Tristate.UNSET);
                                                 }))))
                         .then(new LiteralArgument("metadata")
-                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiMetadata::setPrefix))
-                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiMetadata::setSuffix))
-                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiMetadata::setColor)))
+                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setPrefix))
+                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setSuffix))
+                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiEntity::setColor)))
                         .then(new LiteralArgument("group")
                                 .then(createGroupArgument()
                                         .executes((sender, args) -> {
@@ -44,12 +44,12 @@ public class UserCommand {
                                         })))
                         .then(new LiteralArgument("info")
                                 .executes((sender, args) -> {
-                                    info(sender, (OfflinePlayer) args.get("player"));
+                                    return info(sender, (OfflinePlayer) args.get("player"));
                                 })));
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiMetadata, T> setter) {
+    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
         return new LiteralArgument(name)
                 .then(new LiteralArgument("set")
                         .then(valueArgumentFactory.apply("value")
@@ -103,10 +103,10 @@ public class UserCommand {
         return 1;
     }
 
-    private static <T> int setMetadata(CommandSender sender, OfflinePlayer player, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiMetadata, T> setter) {
+    private static <T> int setMetadata(CommandSender sender, OfflinePlayer player, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
         AtomiUser user = SpigotAtomi.get().user(player);
 
-        setter.accept(user.metadata(), value);
+        setter.accept(user, value);
 
         String capitalizedKey = Character.toUpperCase(key.charAt(0)) + key.substring(1) + " for user ";
         if (value != null) {

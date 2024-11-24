@@ -2,7 +2,10 @@ package io.github.pandier.atomi;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public interface Atomi {

@@ -1,29 +1,35 @@
 package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiEntity;
+import io.github.pandier.atomi.AtomiEntityData;
 import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.AtomiMetadata;
 import io.github.pandier.atomi.Tristate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 @ApiStatus.Internal
 public class AtomiGroupImpl extends AbstractAtomiEntity implements AtomiGroup {
     private final String name;
     private final boolean isDefault;
+    private final AtomiEntityDataImpl data;
 
-    public AtomiGroupImpl(@NotNull AbstractAtomi atomi, @NotNull String name, boolean isDefault, @NotNull Map<String, Boolean> permissions, @NotNull AtomiMetadata metadata) {
-        super(atomi, permissions, metadata);
+    public AtomiGroupImpl(@NotNull AbstractAtomi atomi, @NotNull String name, boolean isDefault, @NotNull AtomiEntityDataImpl data) {
+        super(atomi);
         this.name = name;
         this.isDefault = isDefault;
+        this.data = data;
+        this.data.setUpdateCallback((x) -> update());
+    }
+
+    protected void update() {
+        atomi.updateGroup(this);
     }
 
     @Override
-    protected void update() {
-        atomi.updateGroup(this);
+    public @NotNull AtomiEntityData data() {
+        return data;
     }
 
     @Override

@@ -3,6 +3,7 @@ package io.github.pandier.atomi.internal.storage.json;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.pandier.atomi.AtomiUser;
+import io.github.pandier.atomi.internal.AbstractAtomi;
 import io.github.pandier.atomi.internal.factory.UserFactory;
 import io.github.pandier.atomi.internal.storage.StorageException;
 import io.github.pandier.atomi.internal.storage.UserStorage;
@@ -18,12 +19,14 @@ import java.util.UUID;
 
 @ApiStatus.Internal
 public class MultiJsonUserStorage implements UserStorage {
+    private final UserFactory userFactory;
     private final UserJsonSerializer userSerializer;
     private final Gson gson;
     private final Path path;
 
-    public MultiJsonUserStorage(@NotNull Path path, @NotNull UserFactory userFactory, @NotNull Gson gson) {
-        this.userSerializer = new UserJsonSerializer(userFactory);
+    public MultiJsonUserStorage(@NotNull Path path, @NotNull AbstractAtomi atomi, @NotNull UserFactory userFactory, @NotNull Gson gson) {
+        this.userFactory = userFactory;
+        this.userSerializer = new UserJsonSerializer(atomi);
         this.gson = gson;
         this.path = path;
     }
@@ -47,7 +50,7 @@ public class MultiJsonUserStorage implements UserStorage {
 
         try {
             JsonObject object = gson.fromJson(content, JsonObject.class);
-            AtomiUser user = userSerializer.deserialize(object, uuid);
+            AtomiUser user = userFactory.create(uuid, userSerializer.deserialize(object));
             return Optional.of(user);
         } catch (Exception e) {
             throw new StorageException("Failed deserializing file '" + path + "' for user " + uuid, e);
@@ -58,7 +61,7 @@ public class MultiJsonUserStorage implements UserStorage {
     public void save(@NotNull AtomiUser entity) throws StorageException {
         JsonObject jsonObject;
         try {
-            jsonObject = userSerializer.serialize(entity);
+            jsonObject = userSerializer.serialize(entity.data());
         } catch (Exception e) {
             throw new StorageException("Failed serializing user " + entity.uuid(), e);
         }

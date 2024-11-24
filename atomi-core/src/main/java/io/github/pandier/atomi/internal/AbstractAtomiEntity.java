@@ -1,36 +1,38 @@
 package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiEntity;
-import io.github.pandier.atomi.AtomiMetadata;
 import io.github.pandier.atomi.Tristate;
-import io.github.pandier.atomi.internal.permission.PermissionTree;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 @ApiStatus.Internal
 public abstract class AbstractAtomiEntity implements AtomiEntity {
     protected final AbstractAtomi atomi;
-    protected final PermissionTree permissionTree;
-    protected final AtomiLinkedMetadataImpl metadata;
 
     protected AbstractAtomiEntity(AbstractAtomi atomi) {
-        this(atomi, Map.of(), AtomiMetadata.create());
-    }
-
-    protected AbstractAtomiEntity(AbstractAtomi atomi, Map<String, Boolean> permissions, AtomiMetadata metadata) {
         this.atomi = atomi;
-        this.permissionTree = new PermissionTree(permissions);
-        this.metadata = new AtomiLinkedMetadataImpl(metadata, () -> parents().stream().map(AtomiEntity::metadata), (ignored) -> update());
     }
 
-    protected void update() {
+    protected <T> @NotNull Optional<T> findInParents(Function<AtomiEntity, Optional<T>> function) {
+        Optional<T> value = function.apply(this);
+        if (value.isPresent())
+            return value;
+        for (AtomiEntity parent : parents()) {
+            value = function.apply(parent);
+            if (value.isPresent())
+                return value;
+        }
+        return Optional.empty();
     }
 
     @Override
     public @NotNull Tristate permission(@NotNull String permission) {
-        Tristate value = directPermission(permission);
+        Tristate value = data().permission(permission);
         if (value != Tristate.UNSET)
             return value;
         for (AtomiEntity parent : parents()) {
@@ -46,32 +48,17 @@ public abstract class AbstractAtomiEntity implements AtomiEntity {
     }
 
     @Override
-    public @NotNull Tristate directPermission(@NotNull String permission) {
-        if (!atomi.permissionValidityPredicate().test(permission))
-            return Tristate.UNSET;
-        return permissionTree.get(permission);
+    public @NotNull Optional<Component> prefix() {
+        return findInParents(AtomiEntity::prefix);
     }
 
     @Override
-    public void setPermission(@NotNull String permission, @NotNull Tristate value) {
-        if (!atomi.permissionValidityPredicate().test(permission))
-            throw new IllegalArgumentException("Permission '" + permission + "' contains illegal characters");
-        permissionTree.set(permission, value);
-        update();
+    public @NotNull Optional<Component> suffix() {
+        return findInParents(AtomiEntity::suffix);
     }
 
     @Override
-    public @NotNull Map<String, Boolean> directPermissions() {
-        return permissionTree.asMap();
-    }
-
-    @Override
-    public @NotNull AtomiMetadata metadata() {
-        return metadata;
-    }
-
-    @Override
-    public @NotNull AtomiMetadata directMetadata() {
-        return metadata.direct();
+    public @NotNull Optional<NamedTextColor> color() {
+        return findInParents(AtomiEntity::color);
     }
 }

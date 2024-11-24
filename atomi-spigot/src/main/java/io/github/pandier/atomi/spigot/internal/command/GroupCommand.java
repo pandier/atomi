@@ -1,8 +1,8 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
 import dev.jorel.commandapi.arguments.*;
+import io.github.pandier.atomi.AtomiEntity;
 import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.AtomiMetadata;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
 import io.github.pandier.atomi.spigot.internal.command.info.InfoBuilder;
@@ -44,9 +44,9 @@ public class GroupCommand {
                                                 })))))
                 .then(new LiteralArgument("metadata")
                         .then(createGroupArgument()
-                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiMetadata::setPrefix))
-                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiMetadata::setSuffix))
-                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiMetadata::setColor))))
+                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setPrefix))
+                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setSuffix))
+                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiEntity::setColor))))
                 .then(new LiteralArgument("info")
                         .then(createGroupArgument()
                                 .executes((sender, args) -> {
@@ -55,7 +55,7 @@ public class GroupCommand {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiMetadata, T> setter) {
+    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
         return new LiteralArgument(name)
                 .then(new LiteralArgument("set")
                         .then(valueArgumentFactory.apply("value")
@@ -129,14 +129,14 @@ public class GroupCommand {
         return 1;
     }
 
-    private static <T> int setMetadata(CommandSender sender, String groupName, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiMetadata, T> setter) {
+    private static <T> int setMetadata(CommandSender sender, String groupName, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
         AtomiGroup group = SpigotAtomi.get().group(groupName).orElse(null);
         if (group == null) {
             Commands.send(sender, Component.text("Group with the name '" + groupName + "' does not exist").color(NamedTextColor.RED), true);
             return 0;
         }
 
-        setter.accept(group.metadata(), value);
+        setter.accept(group, value);
 
         String intro = Character.toUpperCase(key.charAt(0)) + key.substring(1) + " for group ";
         if (value != null) {

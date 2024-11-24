@@ -10,12 +10,21 @@ public interface AtomiUser extends AtomiEntity {
     @NotNull
     UUID uuid();
 
-    void setGroup(@Nullable AtomiGroup group);
+    @NotNull
+    AtomiUserData data();
 
-    boolean setGroupByName(@Nullable String group);
+    default void setGroup(@Nullable AtomiGroup group) {
+        data().setGroup(group);
+    }
+
+    default boolean setGroupByName(@Nullable String group) {
+        return data().setGroupByName(group);
+    }
 
     @NotNull
-    AtomiGroup group();
+    default AtomiGroup group() {
+        return data().group();
+    }
 
     void assignContext(@NotNull AtomiContext context);
 

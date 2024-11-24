@@ -51,7 +51,7 @@ public abstract class AbstractAtomi implements Atomi {
                 .setPrettyPrinting()
                 .create();
 
-        this.userStorage = new MultiJsonUserStorage(path.resolve("users"), userFactory, gson);
+        this.userStorage = new MultiJsonUserStorage(path.resolve("users"), this, userFactory, gson);
         this.groupStorage = new SingleJsonGroupStorage(path.resolve("groups.json"), groupFactory, gson);
 
         try {
@@ -68,21 +68,18 @@ public abstract class AbstractAtomi implements Atomi {
 
     @NotNull
     protected UserFactory createUserFactory() {
-        return (uuid, groupName, permissions, metadata) -> {
-            AtomiGroup group = Optional.ofNullable(groupName).flatMap(this::group).orElse(defaultGroup());
-            return new AtomiUserImpl(this, uuid, group, permissions, metadata);
-        };
+        return (uuid, data) -> new AtomiUserImpl(this, uuid, data);
     }
 
     @NotNull
     protected GroupFactory createGroupFactory() {
-        return (name, permissions, metadata) -> new AtomiGroupImpl(this, name, name.equals(DEFAULT_GROUP_NAME), permissions, metadata);
+        return (name, data) -> new AtomiGroupImpl(this, name, name.equals(DEFAULT_GROUP_NAME), data);
     }
 
     @Override
     public @NotNull AtomiUser user(@NotNull UUID uuid) {
         return userOptional(uuid).orElseGet(() -> {
-            AtomiUser user = userFactory.createDefault(uuid);
+            AtomiUser user = userFactory.create(uuid, new AtomiUserDataImpl(this));
             userCache.put(uuid, user);
             return user;
         });
@@ -128,7 +125,7 @@ public abstract class AbstractAtomi implements Atomi {
     public @NotNull AtomiGroup getOrCreateGroup(@NotNull String name) {
         if (!groupNameValidityPredicate().test(name))
             throw new IllegalArgumentException("Group name '" + name + "' contains illegal characters");
-        return groups.computeIfAbsent(name, groupFactory::createDefault);
+        return groups.computeIfAbsent(name, (x) -> groupFactory.create(x, new AtomiEntityDataImpl()));
     }
 
     @Override

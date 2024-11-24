@@ -2,35 +2,46 @@ package io.github.pandier.atomi.internal.storage.json.serializer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.github.pandier.atomi.AtomiUser;
-import io.github.pandier.atomi.internal.factory.UserFactory;
+import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.AtomiUserData;
+import io.github.pandier.atomi.internal.AbstractAtomi;
+import io.github.pandier.atomi.internal.AtomiUserDataImpl;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 @ApiStatus.Internal
 public class UserJsonSerializer extends EntityJsonSerializer {
-    private final UserFactory factory;
+    private final AbstractAtomi atomi;
 
-    public UserJsonSerializer(@NotNull UserFactory factory) {
-        this.factory = factory;
+    public UserJsonSerializer(AbstractAtomi atomi) {
+        this.atomi = atomi;
     }
 
     @NotNull
-    public JsonObject serialize(@NotNull AtomiUser user) {
+    public JsonObject serialize(@NotNull AtomiUserData data) {
         JsonObject jsonUser = new JsonObject();
-        super.serializeEntity(jsonUser, user);
+        super.serializeEntity(jsonUser, data);
 
-        if (!user.group().isDefault())
-            jsonUser.addProperty("group", user.group().name());
+        AtomiGroup group = data.group();
+        if (!group.isDefault())
+            jsonUser.addProperty("group", group.name());
         return jsonUser;
     }
 
-    @NotNull
-    public AtomiUser deserialize(@NotNull JsonObject jsonUser, @NotNull UUID uuid) {
+    protected String deserializeGroup(@NotNull JsonObject jsonUser) {
         JsonElement jsonGroup = jsonUser.get("group");
-        String group = jsonGroup != null && !jsonGroup.isJsonNull() ? jsonGroup.getAsString() : null;
-        return factory.create(uuid, group, deserializePermissions(jsonUser), deserializeMetadata(jsonUser));
+        return jsonGroup != null && !jsonGroup.isJsonNull() ? jsonGroup.getAsString() : null;
+    }
+
+    @NotNull
+    public AtomiUserDataImpl deserialize(@NotNull JsonObject jsonUser) {
+        return new AtomiUserDataImpl(
+                atomi,
+                deserializePermissions(jsonUser),
+                deserializePrefix(jsonUser),
+                deserializeSuffix(jsonUser),
+                deserializeColor(jsonUser),
+                deserializeGroup(jsonUser)
+        );
     }
 }

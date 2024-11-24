@@ -1,26 +1,26 @@
 package io.github.pandier.atomi.internal.storage.json.serializer;
 
 import com.google.gson.JsonObject;
-import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.internal.factory.GroupFactory;
+import io.github.pandier.atomi.AtomiEntityData;
+import io.github.pandier.atomi.internal.AtomiEntityDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 public class GroupJsonSerializer extends EntityJsonSerializer {
-    private final GroupFactory factory;
-
-    public GroupJsonSerializer(@NotNull GroupFactory factory) {
-        this.factory = factory;
-    }
 
     @NotNull
-    public JsonObject serialize(@NotNull AtomiGroup group) {
+    public JsonObject serialize(@NotNull AtomiEntityData data) {
         JsonObject jsonGroup = new JsonObject();
-        super.serializeEntity(jsonGroup, group);
+        super.serializeEntity(jsonGroup, data);
         return jsonGroup;
     }
 
     @NotNull
-    public AtomiGroup deserialize(@NotNull JsonObject jsonGroup, @NotNull String name) {
-        return factory.create(name, deserializePermissions(jsonGroup), deserializeMetadata(jsonGroup));
+    public AtomiEntityDataImpl deserialize(@NotNull JsonObject jsonGroup) {
+        return new AtomiEntityDataImpl(
+                deserializePermissions(jsonGroup),
+                deserializePrefix(jsonGroup),
+                deserializeSuffix(jsonGroup),
+                deserializeColor(jsonGroup)
+        );
     }
 }

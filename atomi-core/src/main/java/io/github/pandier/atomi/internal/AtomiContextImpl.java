@@ -1,26 +1,24 @@
 package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiContext;
-import io.github.pandier.atomi.AtomiEntity;
-import io.github.pandier.atomi.AtomiMetadata;
+import io.github.pandier.atomi.AtomiEntityData;
 import io.github.pandier.atomi.Tristate;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ApiStatus.Internal
-public class AtomiContextImpl implements AtomiContext {
+public class AtomiContextImpl implements AtomiContext, NoParentAtomiEntity {
     private final String identifier;
-    private final HashMap<String, Boolean> permissions;
-    private final AtomiMetadata metadata;
+    private final AtomiEntityDataImpl data;
 
-    private AtomiContextImpl(String identifier, HashMap<String, Boolean> permissions, AtomiMetadata metadata) {
+    private AtomiContextImpl(String identifier, AtomiEntityDataImpl data) {
         this.identifier = identifier;
-        this.permissions = permissions;
-        this.metadata = metadata;
+        this.data = data;
     }
 
     @Override
@@ -29,50 +27,18 @@ public class AtomiContextImpl implements AtomiContext {
     }
 
     @Override
-    public @NotNull Tristate permission(@NotNull String permission) {
-        return Tristate.of(permissions.get(permission));
+    public @NotNull AtomiEntityData data() {
+        return data;
     }
 
-    @Override
-    public @NotNull Tristate directPermission(@NotNull String permission) {
-        return Tristate.of(permissions.get(permission));
-    }
-
-    @Override
-    public void setPermission(@NotNull String permission, @NotNull Tristate value) {
-        Boolean booleanValue = value.asNullableBoolean();
-        if (booleanValue == null) {
-            permissions.remove(permission);
-        } else {
-            permissions.put(permission, booleanValue);
-        }
-    }
-
-    @Override
-    public @NotNull AtomiMetadata directMetadata() {
-        return new AtomiMetadataImpl(metadata);
-    }
-
-    @Override
-    public @NotNull Map<String, Boolean> directPermissions() {
-        return new HashMap<>(permissions);
-    }
-
-    @Override
-    public @NotNull AtomiMetadata metadata() {
-        return metadata;
-    }
-
-    @Override
-    public @NotNull List<AtomiEntity> parents() {
-        return List.of();
-    }
 
     @ApiStatus.Internal
     public static class Builder implements AtomiContext.Builder {
         private String identifier;
-        private HashMap<String, Boolean> permissions = new HashMap<>();
-        private AtomiMetadata metadata = null;
+        private final HashMap<String, Boolean> permissions = new HashMap<>();
+        private Component prefix;
+        private Component suffix;
+        private NamedTextColor color;
 
         public Builder(@NotNull String identifier) {
             this.identifier = identifier;
@@ -84,21 +50,31 @@ public class AtomiContextImpl implements AtomiContext {
         }
 
         public Builder setPermission(@NotNull String permission, Tristate value) {
-            if (permissions == null) {
-                permissions = new HashMap<>();
-            }
             permissions.put(permission, value.asNullableBoolean());
             return this;
         }
 
-        public Builder setMetadata(@NotNull AtomiMetadata metadata) {
-            this.metadata = metadata;
+        @Override
+        public AtomiContext.Builder setPrefix(@Nullable Component prefix) {
+            this.prefix = prefix;
+            return this;
+        }
+
+        @Override
+        public AtomiContext.Builder setSuffix(@Nullable Component suffix) {
+            this.suffix = suffix;
+            return this;
+        }
+
+        @Override
+        public AtomiContext.Builder setColor(@Nullable NamedTextColor color) {
+            this.color = color;
             return this;
         }
 
         @Override
         public AtomiContext build() {
-            return new AtomiContextImpl(identifier, permissions, metadata != null ? new AtomiMetadataImpl(metadata) : new AtomiMetadataImpl());
+            return new AtomiContextImpl(identifier, new AtomiEntityDataImpl(permissions, prefix, suffix, color));
         }
     }
 }

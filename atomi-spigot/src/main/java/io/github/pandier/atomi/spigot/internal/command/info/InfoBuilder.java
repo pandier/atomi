@@ -72,15 +72,15 @@ public class InfoBuilder {
 
     public void metadata(AtomiEntity entity) {
         title("Metadata");
-        metadataEntries(entityToSource(entity), entity.directMetadata());
+        metadataEntries(entityToSource(entity), entity.data());
         for (AtomiEntity parent : entity.parents())
-            metadataEntries(entityToSource(parent), parent.directMetadata());
+            metadataEntries(entityToSource(parent), parent.data());
     }
 
-    public void metadataEntries(@Nullable String source, AtomiMetadata metadata) {
-        metadataEntry(source, "prefix", metadata.prefix().orElse(null));
-        metadataEntry(source, "suffix", metadata.suffix().orElse(null));
-        metadataEntry(source, "color", metadata.color().map(color -> Component.text(color.toString()).color(color)).orElse(null));
+    public void metadataEntries(@Nullable String source, AtomiEntityData data) {
+        metadataEntry(source, "prefix", data.prefix().orElse(null));
+        metadataEntry(source, "suffix", data.suffix().orElse(null));
+        metadataEntry(source, "color", data.color().map(color -> Component.text(color.toString()).color(color)).orElse(null));
     }
 
     public void metadataEntry(@Nullable String source, String key, @Nullable Component value) {
@@ -91,9 +91,9 @@ public class InfoBuilder {
 
     public void permissions(AtomiEntity entity) {
         title("Permissions");
-        permissionEntries(entityToSource(entity), entity.directPermissions());
+        permissionEntries(entityToSource(entity), entity.data().permissions());
         for (AtomiEntity parent : entity.parents())
-            permissionEntries(entityToSource(parent), parent.directPermissions());
+            permissionEntries(entityToSource(parent), parent.data().permissions());
     }
 
     public void permissionEntries(@Nullable String source, Map<String, Boolean> permissions) {
