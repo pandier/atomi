@@ -1,11 +1,13 @@
 package io.github.pandier.atomi.internal.storage;
 
 import io.github.pandier.atomi.AtomiUser;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@ApiStatus.Internal
 public interface UserStorage {
 
     @NotNull Optional<AtomiUser> load(@NotNull UUID uuid) throws StorageException;

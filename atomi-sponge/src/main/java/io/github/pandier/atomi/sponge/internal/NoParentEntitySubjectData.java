@@ -1,11 +1,13 @@
 package io.github.pandier.atomi.sponge.internal;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.service.permission.TransferMethod;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@ApiStatus.Internal
 public class NoParentEntitySubjectData extends AbstractEntitySubjectData {
     private final AbstractEntitySubject subject;
 

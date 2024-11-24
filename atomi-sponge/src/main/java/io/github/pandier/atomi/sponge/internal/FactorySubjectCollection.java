@@ -1,5 +1,6 @@
 package io.github.pandier.atomi.sponge.internal;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -14,6 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@ApiStatus.Internal
 public class FactorySubjectCollection implements SubjectCollection {
     private final String identifier;
     private final AtomiPermissionService service;

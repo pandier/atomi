@@ -5,6 +5,7 @@ import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.internal.permission.PermissionTree;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@ApiStatus.Internal
 public class AtomiEntityDataImpl implements AtomiEntityData {
     private final PermissionTree permissions;
     private Component prefix;

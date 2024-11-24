@@ -13,17 +13,17 @@ public interface AtomiUser extends AtomiEntity {
     @NotNull
     AtomiUserData data();
 
+    @NotNull
+    default AtomiGroup group() {
+        return data().group();
+    }
+
     default void setGroup(@Nullable AtomiGroup group) {
         data().setGroup(group);
     }
 
     default boolean setGroupByName(@Nullable String group) {
         return data().setGroupByName(group);
-    }
-
-    @NotNull
-    default AtomiGroup group() {
-        return data().group();
     }
 
     void assignContext(@NotNull AtomiContext context);

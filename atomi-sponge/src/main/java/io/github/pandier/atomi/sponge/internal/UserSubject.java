@@ -1,7 +1,9 @@
 package io.github.pandier.atomi.sponge.internal;
 
 import io.github.pandier.atomi.AtomiUser;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public class UserSubject extends AbstractEntitySubject {
     private final AtomiUser user;
     private final UserSubjectData data = new UserSubjectData(this);

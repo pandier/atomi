@@ -1,6 +1,7 @@
 package io.github.pandier.atomi.sponge.internal;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.SubjectReference;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+@ApiStatus.Internal
 public abstract class AbstractEntitySubjectData implements SubjectData {
 
     @Override
