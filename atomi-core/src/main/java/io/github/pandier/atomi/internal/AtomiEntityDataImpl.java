@@ -19,7 +19,7 @@ public class AtomiEntityDataImpl implements AtomiEntityData {
     private Component prefix;
     private Component suffix;
     private NamedTextColor color;
-    private Consumer<AtomiEntityData> updateCallback = (x) -> {};
+    protected Consumer<AtomiEntityData> updateCallback = (x) -> {};
 
     public AtomiEntityDataImpl() {
         this(Map.of(), null, null, null);

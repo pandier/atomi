@@ -38,6 +38,7 @@ public class AtomiUserDataImpl extends AtomiEntityDataImpl implements AtomiUserD
     @Override
     public void setGroup(@Nullable AtomiGroup group) {
         this.group = group != null ? group : atomi.defaultGroup();
+        updateCallback.accept(this);
     }
 
     @Override
