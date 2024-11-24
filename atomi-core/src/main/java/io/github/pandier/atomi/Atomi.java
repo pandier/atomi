@@ -30,7 +30,6 @@ public interface Atomi {
 
     boolean removeGroup(@NotNull String name);
 
-    // TODO: Maybe move this to AtomiGroup?
     void removeGroup(@NotNull AtomiGroup group);
 
     @NotNull
