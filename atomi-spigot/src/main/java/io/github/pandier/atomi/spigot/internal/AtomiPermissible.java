@@ -20,13 +20,13 @@ public class AtomiPermissible extends PermissibleBase {
     private final AtomiUser user;
     private final List<PermissionAttachment> attachments = new ArrayList<>();
     private final Map<String, PermissionAttachmentInfo> attachmentPermissions = new HashMap<>();
-    public final PermissibleBase replacedPermissible;
+    public final PermissibleBase previousPermissible;
 
-    AtomiPermissible(Player player, AtomiUser user, PermissibleBase oldPermissible) {
+    AtomiPermissible(Player player, AtomiUser user, PermissibleBase previousPermissible) {
         super(player);
         this.parent = player;
         this.user = user;
-        this.replacedPermissible = oldPermissible;
+        this.previousPermissible = previousPermissible;
     }
 
     @Override
@@ -125,7 +125,11 @@ public class AtomiPermissible extends PermissibleBase {
 
     @Override
     public void recalculatePermissions() {
-        recalculateAttachmentPermissions();
+        // We need to check if the attachmentPermissions map is null, because this method is called
+        // from the constructor of the super class and attachmentPermissions is not initialized yet
+        if (attachmentPermissions != null) {
+            recalculateAttachmentPermissions();
+        }
     }
 
     @Override

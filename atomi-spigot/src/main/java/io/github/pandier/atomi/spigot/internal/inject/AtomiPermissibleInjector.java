@@ -44,7 +44,7 @@ public class AtomiPermissibleInjector {
             PermissibleBase permissible = (PermissibleBase) PERMISSIBLE_FIELD.get(player);
 
             if (permissible instanceof AtomiPermissible atomiPermissible) {
-                PERMISSIBLE_FIELD.set(player, atomiPermissible.replacedPermissible);
+                PERMISSIBLE_FIELD.set(player, atomiPermissible.previousPermissible);
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Failed to uninject permissible from Player", e);
