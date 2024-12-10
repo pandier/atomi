@@ -78,7 +78,7 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     public void updateUser(@NotNull AtomiUser user) {
         // We want to send the event and save the user only once next tick
         // This fixes many issues, like recursion when modifying the user within the event,
-        // and speeds up user updates by saving only once per tick
+        // and speeds up user updates by saving only once in a single tick
         userUpdateTasks.computeIfAbsent(user.uuid(), uuid -> Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(new AtomiUserUpdateEvent(user));
             super.updateUser(user);
@@ -90,7 +90,7 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     public void updateGroup(@NotNull AtomiGroup group) {
         // We want to send the event and save the group only once next tick
         // This fixes many issues, like recursion when modifying the group within the event,
-        // and speeds up group updates by saving only once per tick
+        // and speeds up group updates by saving only once in a single tick
         groupUpdateTasks.computeIfAbsent(group.name(), name -> Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(new AtomiGroupUpdateEvent(group));
             super.updateGroup(group);
@@ -99,7 +99,7 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     }
 
     private AtomiPermissible createPermissible(Player player, PermissibleBase previousPermissible) {
-        return new AtomiPermissible(player, SpigotAtomi.get().user(player), previousPermissible);
+        return new AtomiPermissible(player, user(player), previousPermissible);
     }
 
     public void initiatePlayer(@NotNull Player player) {

@@ -16,9 +16,9 @@ import java.util.function.Consumer;
 @ApiStatus.Internal
 public class AtomiEntityDataImpl implements AtomiEntityData {
     private final PermissionTree permissions;
-    private Component prefix;
-    private Component suffix;
-    private NamedTextColor color;
+    private volatile Component prefix;
+    private volatile Component suffix;
+    private volatile NamedTextColor color;
     protected Consumer<AtomiEntityData> updateCallback = (x) -> {};
 
     public AtomiEntityDataImpl() {

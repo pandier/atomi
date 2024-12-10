@@ -14,7 +14,7 @@ import java.util.Optional;
 @ApiStatus.Internal
 public class AtomiUserDataImpl extends AtomiEntityDataImpl implements AtomiUserData {
     private final AbstractAtomi atomi;
-    private AtomiGroup group;
+    private volatile AtomiGroup group;
 
     public AtomiUserDataImpl(AbstractAtomi atomi) {
         this(atomi, Map.of(), null, null, null, atomi.defaultGroup());

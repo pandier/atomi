@@ -31,7 +31,6 @@ public class AtomiContextImpl implements AtomiContext, NoParentAtomiEntity {
         return data;
     }
 
-
     @ApiStatus.Internal
     public static class Builder implements AtomiContext.Builder {
         private String identifier;

@@ -41,22 +41,31 @@ public class AtomiUserImpl extends AbstractAtomiEntity implements AtomiUser {
 
     @Override
     public void assignContext(@NotNull AtomiContext context) {
-        contexts.add(context);
+        synchronized (contexts) {
+            contexts.add(context);
+        }
     }
 
     @Override
     public void removeContext(@NotNull AtomiContext context) {
-        contexts.remove(context);
+        synchronized (contexts) {
+            contexts.remove(context);
+        }
     }
 
     @Override
     public @NotNull Set<AtomiContext> contexts() {
-        return new HashSet<>(contexts);
+        synchronized (contexts) {
+            return new HashSet<>(contexts);
+        }
     }
 
     @Override
     public @NotNull List<AtomiEntity> parents() {
-        List<AtomiEntity> parents = new ArrayList<>(contexts);
+        List<AtomiEntity> parents;
+        synchronized (contexts) {
+            parents = new ArrayList<>(contexts);
+        }
         parents.add(group());
         return parents;
     }

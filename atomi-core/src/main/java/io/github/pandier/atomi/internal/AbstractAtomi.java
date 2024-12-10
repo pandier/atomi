@@ -17,8 +17,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 @ApiStatus.Internal
@@ -38,8 +41,8 @@ public abstract class AbstractAtomi implements Atomi {
     protected final UserStorage userStorage;
     protected final GroupStorage groupStorage;
 
-    protected final Map<String, AtomiGroup> groups;
-    protected final Map<UUID, AtomiUser> userCache = new HashMap<>();
+    protected final ConcurrentMap<String, AtomiGroup> groups;
+    protected final ConcurrentMap<UUID, AtomiUser> userCache = new ConcurrentHashMap<>();
 
     protected AbstractAtomi(Path path, BiConsumer<String, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
@@ -55,7 +58,7 @@ public abstract class AbstractAtomi implements Atomi {
         this.groupStorage = new SingleJsonGroupStorage(path.resolve("groups.json"), groupFactory, gson);
 
         try {
-            this.groups = groupStorage.load();
+            this.groups = new ConcurrentHashMap<>(groupStorage.load());
         } catch (StorageException e) {
             throw new IllegalStateException("Failed loading groups", e);
         }
@@ -78,32 +81,33 @@ public abstract class AbstractAtomi implements Atomi {
 
     @Override
     public @NotNull AtomiUser user(@NotNull UUID uuid) {
-        return userOptional(uuid).orElseGet(() -> {
-            AtomiUser user = userFactory.create(uuid, new AtomiUserDataImpl(this));
-            userCache.put(uuid, user);
-            return user;
-        });
+        return userOrCompute(uuid, () -> userFactory.create(uuid, new AtomiUserDataImpl(this)));
     }
 
     @Override
     public @NotNull Optional<AtomiUser> userOptional(@NotNull UUID uuid) {
-        if (userCache.containsKey(uuid))
-            return Optional.of(userCache.get(uuid));
+        return Optional.ofNullable(userOrCompute(uuid, () -> null));
+    }
 
-        Optional<AtomiUser> result;
-        try {
-            result = userStorage.load(uuid);
-        } catch (StorageException e) {
-            throw new IllegalStateException("Failed loading user " + uuid, e);
-        }
-
-        result.ifPresent(user -> userCache.put(uuid, user));
-        return result;
+    private AtomiUser userOrCompute(@NotNull UUID uuid, @NotNull Supplier<AtomiUser> supplier) {
+        return userCache.computeIfAbsent(uuid, fUuid -> {
+            try {
+                Optional<AtomiUser> user;
+                synchronized (userStorage) {
+                    user = userStorage.load(fUuid);
+                }
+                return user.orElseGet(supplier);
+            } catch (StorageException e) {
+                throw new IllegalStateException("Failed loading user " + fUuid, e);
+            }
+        });
     }
 
     @Override
     public boolean userExists(@NotNull UUID uuid) {
-        return userStorage.exists(uuid);
+        synchronized (userStorage) {
+            return userStorage.exists(uuid);
+        }
     }
 
     @Override
@@ -173,7 +177,9 @@ public abstract class AbstractAtomi implements Atomi {
 
     public void updateUser(@NotNull AtomiUser user) {
         try {
-            userStorage.save(user);
+            synchronized (userStorage) {
+                userStorage.save(user);
+            }
         } catch (StorageException e) {
             errorLogger.accept("Failed saving user " + user.uuid() + " after update", e);
         }
@@ -181,7 +187,9 @@ public abstract class AbstractAtomi implements Atomi {
 
     public void updateGroup(@NotNull AtomiGroup group) {
         try {
-            groupStorage.save(groups);
+            synchronized (groupStorage) {
+                groupStorage.save(groups);
+            }
         } catch (StorageException e) {
             errorLogger.accept("Failed saving groups after update", e);
         }

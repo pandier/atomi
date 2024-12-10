@@ -43,14 +43,6 @@ public class AtomiGroupImpl extends AbstractAtomiEntity implements AtomiGroup {
     }
 
     @Override
-    public @NotNull Tristate permission(@NotNull String permission) {
-        Tristate value = super.permission(permission);
-        if (value != Tristate.UNSET)
-            return value;
-        return atomi.defaultPermissionProvider().group(this, permission);
-    }
-
-    @Override
     public boolean isDefault() {
         return isDefault;
     }

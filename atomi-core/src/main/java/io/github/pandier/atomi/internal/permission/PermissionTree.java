@@ -5,13 +5,14 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 @ApiStatus.Internal
 public class PermissionTree {
     private static final Pattern NODE_SPLIT = Pattern.compile("\\.");
 
-    private final Map<String, Node> children = new HashMap<>();
+    private final Map<String, Node> children = new ConcurrentHashMap<>();
 
     public PermissionTree() {
     }
@@ -27,7 +28,7 @@ public class PermissionTree {
     }
 
     @NotNull
-    public Tristate get(@NotNull String permission) {
+    public synchronized Tristate get(@NotNull String permission) {
         String[] parts = split(permission);
         Map<String, Node> container = this.children;
         Tristate value = Tristate.UNSET;
@@ -43,7 +44,7 @@ public class PermissionTree {
         return value;
     }
 
-    public void set(@NotNull String permission, @NotNull Tristate value) {
+    public synchronized void set(@NotNull String permission, @NotNull Tristate value) {
         String[] parts = split(permission);
 
         if (value == Tristate.UNSET) {
@@ -81,9 +82,9 @@ public class PermissionTree {
     }
 
     private void setOrCreate(String[] parts, Tristate value) {
-        Node node = children.computeIfAbsent(parts[0], name -> new Node(name, Tristate.UNSET, new HashMap<>()));
+        Node node = children.computeIfAbsent(parts[0], Node::new);
         for (int i = 1; i < parts.length; i++)
-            node = node.children.computeIfAbsent(parts[i], name -> new Node(name, Tristate.UNSET, new HashMap<>()));
+            node = node.children.computeIfAbsent(parts[i], Node::new);
         node.value = value;
     }
 
@@ -93,12 +94,12 @@ public class PermissionTree {
         }
     }
 
-    public void clear() {
+    public synchronized void clear() {
         children.clear();
     }
 
     @NotNull
-    public Map<String, Boolean> asMap() {
+    public synchronized Map<String, Boolean> asMap() {
         Map<String, Boolean> map = new HashMap<>();
         populateMap(map, "", children);
         return map;
@@ -136,12 +137,15 @@ public class PermissionTree {
     private static class Node {
         public final String name;
         public Tristate value;
-        public final Map<String, Node> children;
+        public final Map<String, Node> children = new HashMap<>();
 
-        public Node(String name, Tristate value, Map<String, Node> children) {
+        public Node(String name) {
+            this(name, Tristate.UNSET);
+        }
+
+        public Node(String name, Tristate value) {
             this.name = name;
             this.value = value;
-            this.children = new HashMap<>(children);
         }
 
         @Override
