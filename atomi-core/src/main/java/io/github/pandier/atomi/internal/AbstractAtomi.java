@@ -129,7 +129,9 @@ public abstract class AbstractAtomi implements Atomi {
     public @NotNull AtomiGroup getOrCreateGroup(@NotNull String name) {
         if (!groupNameValidityPredicate().test(name))
             throw new IllegalArgumentException("Group name '" + name + "' contains illegal characters");
-        return groups.computeIfAbsent(name, (x) -> groupFactory.create(x, new AtomiEntityDataImpl()));
+        AtomiGroup group = groups.computeIfAbsent(name, (x) -> groupFactory.create(x, new AtomiEntityDataImpl()));
+        saveGroupStorage();
+        return group;
     }
 
     @Override
@@ -146,6 +148,7 @@ public abstract class AbstractAtomi implements Atomi {
                     user.setGroup(defaultGroup());
                 }
             }
+            saveGroupStorage();
         }
 
         return success;
@@ -189,13 +192,17 @@ public abstract class AbstractAtomi implements Atomi {
 
     public void updateGroup(@NotNull AtomiGroup group, boolean save) {
         if (save) {
-            try {
-                synchronized (groupStorage) {
-                    groupStorage.save(groups);
-                }
-            } catch (StorageException e) {
-                errorLogger.accept("Failed saving groups after update", e);
+            saveGroupStorage();
+        }
+    }
+
+    protected void saveGroupStorage() {
+        try {
+            synchronized (groupStorage) {
+                groupStorage.save(groups);
             }
+        } catch (StorageException e) {
+            errorLogger.accept("Failed saving groups after update", e);
         }
     }
 
