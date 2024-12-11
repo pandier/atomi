@@ -75,25 +75,25 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     }
 
     @Override
-    public void updateUser(@NotNull AtomiUser user) {
+    public void updateUser(@NotNull AtomiUser user, boolean save) {
         // We want to send the event and save the user only once next tick
         // This fixes many issues, like recursion when modifying the user within the event,
         // and speeds up user updates by saving only once in a single tick
         userUpdateTasks.computeIfAbsent(user.uuid(), uuid -> Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(new AtomiUserUpdateEvent(user));
-            super.updateUser(user);
+            super.updateUser(user, save);
             userUpdateTasks.remove(uuid);
         }));
     }
 
     @Override
-    public void updateGroup(@NotNull AtomiGroup group) {
+    public void updateGroup(@NotNull AtomiGroup group, boolean save) {
         // We want to send the event and save the group only once next tick
         // This fixes many issues, like recursion when modifying the group within the event,
         // and speeds up group updates by saving only once in a single tick
         groupUpdateTasks.computeIfAbsent(group.name(), name -> Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(new AtomiGroupUpdateEvent(group));
-            super.updateGroup(group);
+            super.updateGroup(group, save);
             groupUpdateTasks.remove(name);
         }));
     }

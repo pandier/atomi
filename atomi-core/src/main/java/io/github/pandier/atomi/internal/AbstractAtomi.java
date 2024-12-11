@@ -175,23 +175,27 @@ public abstract class AbstractAtomi implements Atomi {
         userCache.remove(uuid);
     }
 
-    public void updateUser(@NotNull AtomiUser user) {
-        try {
-            synchronized (userStorage) {
-                userStorage.save(user);
+    public void updateUser(@NotNull AtomiUser user, boolean save) {
+        if (save) {
+            try {
+                synchronized (userStorage) {
+                    userStorage.save(user);
+                }
+            } catch (StorageException e) {
+                errorLogger.accept("Failed saving user " + user.uuid() + " after update", e);
             }
-        } catch (StorageException e) {
-            errorLogger.accept("Failed saving user " + user.uuid() + " after update", e);
         }
     }
 
-    public void updateGroup(@NotNull AtomiGroup group) {
-        try {
-            synchronized (groupStorage) {
-                groupStorage.save(groups);
+    public void updateGroup(@NotNull AtomiGroup group, boolean save) {
+        if (save) {
+            try {
+                synchronized (groupStorage) {
+                    groupStorage.save(groups);
+                }
+            } catch (StorageException e) {
+                errorLogger.accept("Failed saving groups after update", e);
             }
-        } catch (StorageException e) {
-            errorLogger.accept("Failed saving groups after update", e);
         }
     }
 
