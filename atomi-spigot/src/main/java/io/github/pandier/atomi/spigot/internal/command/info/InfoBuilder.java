@@ -40,7 +40,11 @@ public class InfoBuilder {
 
         builder.title("Contexts");
         builder.append(Component.text(" "));
-        builder.join(user.contexts(), context -> Component.text(context.identifier()).color(NamedTextColor.BLUE));
+        if (!user.contexts().isEmpty()) {
+            builder.join(user.contexts(), context -> Component.text(context.identifier()).color(NamedTextColor.BLUE));
+        } else {
+            builder.append(Component.text("None").color(NamedTextColor.DARK_GRAY));
+        }
 
         builder.metadata(user);
         builder.permissions(user);
@@ -75,6 +79,8 @@ public class InfoBuilder {
         metadataEntries(entityToSource(entity), entity.data());
         for (AtomiEntity parent : entity.parents())
             metadataEntries(entityToSource(parent), parent.data());
+        if (metadataKeys.isEmpty())
+            append(Component.text("\n    Nothing to see here...").color(NamedTextColor.DARK_GRAY));
     }
 
     public void metadataEntries(@Nullable String source, AtomiEntityData data) {
@@ -94,6 +100,8 @@ public class InfoBuilder {
         permissionEntries(entityToSource(entity), entity.data().permissions());
         for (AtomiEntity parent : entity.parents())
             permissionEntries(entityToSource(parent), parent.data().permissions());
+        if (permissionKeys.isEmpty())
+            append(Component.text("\n    Nothing to see here...").color(NamedTextColor.DARK_GRAY));
     }
 
     public void permissionEntries(@Nullable String source, Map<String, Boolean> permissions) {
