@@ -98,7 +98,7 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
         }));
     }
 
-    private AtomiPermissible createPermissible(Player player, PermissibleBase previousPermissible) {
+    private AtomiPermissible createPermissible(@NotNull Player player, PermissibleBase previousPermissible) {
         return new AtomiPermissible(player, user(player), previousPermissible);
     }
 

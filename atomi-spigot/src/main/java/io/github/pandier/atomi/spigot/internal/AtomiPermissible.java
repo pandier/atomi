@@ -3,6 +3,7 @@ package io.github.pandier.atomi.spigot.internal;
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.Tristate;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.*;
 import org.bukkit.plugin.Plugin;
@@ -16,14 +17,21 @@ import java.util.logging.Level;
 
 @ApiStatus.Internal
 public class AtomiPermissible extends PermissibleBase {
+    // We need to always subscribe to these permissions, because bukkit uses permission subscriptions to retrieve all permissibles it should broadcast to
+    private static final List<String> FORCED_PERMISSION_SUBSCRIPTIONS = List.of(Server.BROADCAST_CHANNEL_ADMINISTRATIVE, Server.BROADCAST_CHANNEL_USERS);
+
     private final Player parent;
     private final AtomiUser user;
     private final List<PermissionAttachment> attachments = new ArrayList<>();
     private final Map<String, PermissionAttachmentInfo> attachmentPermissions = new HashMap<>();
     public final PermissibleBase previousPermissible;
 
-    AtomiPermissible(Player player, AtomiUser user, PermissibleBase previousPermissible) {
+    AtomiPermissible(@NotNull Player player, @NotNull AtomiUser user, PermissibleBase previousPermissible) {
         super(player);
+
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(user, "user");
+
         this.parent = player;
         this.user = user;
         this.previousPermissible = previousPermissible;
@@ -125,8 +133,14 @@ public class AtomiPermissible extends PermissibleBase {
 
     @Override
     public void recalculatePermissions() {
-        // We need to check if the attachmentPermissions map is null, because this method is called
-        // from the constructor of the super class and attachmentPermissions is not initialized yet
+        // We need to check if certain fields are null, because this method is called
+        // from the constructor of the super class and some of the fields are not initialized yet
+
+        if (parent != null) {
+            for (String permission : FORCED_PERMISSION_SUBSCRIPTIONS)
+                Bukkit.getPluginManager().subscribeToPermission(permission, parent);
+        }
+
         if (attachmentPermissions != null) {
             recalculateAttachmentPermissions();
         }
@@ -144,6 +158,9 @@ public class AtomiPermissible extends PermissibleBase {
 
     @Override
     public synchronized void clearPermissions() {
+        for (String permission : FORCED_PERMISSION_SUBSCRIPTIONS)
+            Bukkit.getPluginManager().unsubscribeFromPermission(permission, parent);
+
         clearAttachmentPermissions();
     }
 }
