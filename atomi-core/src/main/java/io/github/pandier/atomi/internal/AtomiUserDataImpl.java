@@ -2,8 +2,7 @@ package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiGroup;
 import io.github.pandier.atomi.AtomiUserData;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import io.github.pandier.atomi.AtomiOption;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,15 +16,15 @@ public class AtomiUserDataImpl extends AtomiEntityDataImpl implements AtomiUserD
     private volatile AtomiGroup group;
 
     public AtomiUserDataImpl(AbstractAtomi atomi) {
-        this(atomi, Map.of(), null, null, null, atomi.defaultGroup());
+        this(atomi, Map.of(), Map.of(), atomi.defaultGroup());
     }
 
-    public AtomiUserDataImpl(AbstractAtomi atomi, Map<String, Boolean> permissions, Component prefix, Component suffix, NamedTextColor color, @Nullable String groupName) {
-        this(atomi, permissions, prefix, suffix, color, Optional.ofNullable(groupName).flatMap(atomi::group).orElseGet(atomi::defaultGroup));
+    public AtomiUserDataImpl(AbstractAtomi atomi, Map<String, Boolean> permissions, Map<AtomiOption<?>, Object> options, @Nullable String groupName) {
+        this(atomi, permissions, options, Optional.ofNullable(groupName).flatMap(atomi::group).orElseGet(atomi::defaultGroup));
     }
 
-    public AtomiUserDataImpl(AbstractAtomi atomi, Map<String, Boolean> permissions, Component prefix, Component suffix, NamedTextColor color, AtomiGroup group) {
-        super(permissions, prefix, suffix, color);
+    public AtomiUserDataImpl(AbstractAtomi atomi, Map<String, Boolean> permissions, Map<AtomiOption<?>, Object> options, AtomiGroup group) {
+        super(permissions, options);
         this.atomi = atomi;
         this.group = group;
     }

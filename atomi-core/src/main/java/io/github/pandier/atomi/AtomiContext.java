@@ -1,8 +1,6 @@
 package io.github.pandier.atomi;
 
 import io.github.pandier.atomi.internal.AtomiContextImpl;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,13 +17,9 @@ public interface AtomiContext extends AtomiEntity {
     interface Builder {
         Builder setIdentifier(@NotNull String identifier);
 
-        Builder setPermission(@NotNull String permission, Tristate value);
+        Builder setPermission(@NotNull String permission, @NotNull Tristate value);
 
-        Builder setPrefix(@Nullable Component prefix);
-
-        Builder setSuffix(@Nullable Component suffix);
-
-        Builder setColor(@Nullable NamedTextColor color);
+        <T> Builder setOption(@NotNull AtomiOption<T> option, @Nullable T value);
 
         AtomiContext build();
     }

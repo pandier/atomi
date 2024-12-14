@@ -1,8 +1,9 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
 import dev.jorel.commandapi.arguments.*;
-import io.github.pandier.atomi.AtomiEntity;
 import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
+import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
 import io.github.pandier.atomi.spigot.internal.command.info.InfoBuilder;
@@ -10,16 +11,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import static io.github.pandier.atomi.spigot.internal.command.Commands.createGroupArgument;
 
 @ApiStatus.Internal
 public class GroupCommand {
-    public static Argument<?> create() {
+    public static Argument<?> create(AtomiOptionRegistry optionRegistry) {
         return new LiteralArgument("group")
                 .then(new LiteralArgument("create")
                         .then(new StringArgument("name")
@@ -42,11 +41,8 @@ public class GroupCommand {
                                                 .executes((sender, args) -> {
                                                     return unsetPermission(sender, (String) args.get("group"), (String) args.get("permission"));
                                                 })))))
-                .then(new LiteralArgument("metadata")
-                        .then(createGroupArgument()
-                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setPrefix))
-                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setSuffix))
-                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiEntity::setColor))))
+                .then(new LiteralArgument("option")
+                        .then(appendOptionArguments(createGroupArgument(), optionRegistry)))
                 .then(new LiteralArgument("info")
                         .then(createGroupArgument()
                                 .executes((sender, args) -> {
@@ -54,18 +50,23 @@ public class GroupCommand {
                                 })));
     }
 
+    private static Argument<?> appendOptionArguments(Argument<?> argument, AtomiOptionRegistry optionRegistry) {
+        optionRegistry.forEach(option -> appendOptionArgument(argument, option));
+        return argument;
+    }
+
     @SuppressWarnings("unchecked")
-    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
-        return new LiteralArgument(name)
+    private static <T> void appendOptionArgument(Argument<?> argument, AtomiOption<T> option) {
+        argument.then(new LiteralArgument(option.name())
                 .then(new LiteralArgument("set")
-                        .then(valueArgumentFactory.apply("value")
+                        .then(AtomiOptionTypeArguments.createArgument(option.type(), "value")
                                 .executes((sender, args) -> {
-                                    return setMetadata(sender, (String) args.get("group"), name, (T) args.get("value"), display, setter);
+                                    return setOption(sender, (String) args.get("group"), option, (T) args.get("value"));
                                 })))
                 .then(new LiteralArgument("unset")
                         .executes((sender, args) -> {
-                            return setMetadata(sender, (String) args.get("group"), name, null, display, setter);
-                        }));
+                            return setOption(sender, (String) args.get("group"), option, null);
+                        })));
     }
 
     private static int create(CommandSender sender, String name) {
@@ -129,26 +130,26 @@ public class GroupCommand {
         return 1;
     }
 
-    private static <T> int setMetadata(CommandSender sender, String groupName, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
+    private static <T> int setOption(CommandSender sender, String groupName, @NotNull AtomiOption<T> option, @Nullable T value) {
         AtomiGroup group = SpigotAtomi.get().group(groupName).orElse(null);
         if (group == null) {
             Commands.send(sender, Component.text("Group with the name '" + groupName + "' does not exist").color(NamedTextColor.RED), true);
             return 0;
         }
 
-        setter.accept(group, value);
+        group.setOption(option, value);
 
-        String intro = Character.toUpperCase(key.charAt(0)) + key.substring(1) + " for group ";
+        Component text = Component.text("Option ")
+                .append(Component.text(option.name()).color(NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(" for user "))
+                .append(Component.text(groupName).color(NamedTextColor.WHITE));
         if (value != null) {
-            Commands.send(sender, Component.text(intro)
-                    .append(Component.text(groupName).color(NamedTextColor.WHITE))
-                    .append(Component.text(" set to "))
-                    .append(Component.empty().color(NamedTextColor.WHITE).append(display.apply(value))), true);
+            text = text.append(Component.text(" set to "))
+                    .append(Component.empty().color(NamedTextColor.WHITE).append(option.type().displayText(value)));
         } else {
-            Commands.send(sender, Component.text(intro)
-                    .append(Component.text(groupName).color(NamedTextColor.WHITE))
-                    .append(Component.text(" unset")), true);
+            text = text.append(Component.text(" unset"));
         }
+        Commands.send(sender, text, true);
 
         return 1;
     }

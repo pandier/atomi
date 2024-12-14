@@ -1,7 +1,5 @@
 package io.github.pandier.atomi;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,17 +16,10 @@ public interface AtomiEntityData {
     Map<String, Boolean> permissions();
 
     @NotNull
-    Optional<Component> prefix();
+    <T> Optional<T> option(@NotNull AtomiOption<T> option);
 
-    void setPrefix(@Nullable Component prefix);
-
-    @NotNull
-    Optional<Component> suffix();
-
-    void setSuffix(@Nullable Component suffix);
+    <T> void setOption(@NotNull AtomiOption<T> option, @Nullable T value);
 
     @NotNull
-    Optional<NamedTextColor> color();
-
-    void setColor(@Nullable NamedTextColor color);
+    Map<AtomiOption<?>, Object> options();
 }

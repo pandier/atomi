@@ -5,6 +5,7 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -33,11 +34,11 @@ public class Commands {
                 .includeSuggestions(ArgumentSuggestions.strings((ignored) -> SpigotAtomi.get().groupNames().toArray(new String[0])));
     }
 
-    public static void register() {
+    public static void register(AtomiOptionRegistry optionRegistry) {
         new CommandTree("atomi")
                 .withPermission("atomi.command")
-                .then(UserCommand.create())
-                .then(GroupCommand.create())
+                .then(UserCommand.create(optionRegistry))
+                .then(GroupCommand.create(optionRegistry))
                 .register();
     }
 

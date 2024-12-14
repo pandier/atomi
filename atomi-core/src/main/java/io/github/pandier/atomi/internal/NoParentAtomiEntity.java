@@ -1,9 +1,8 @@
 package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiEntity;
+import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.Tristate;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,19 +20,8 @@ public interface NoParentAtomiEntity extends AtomiEntity {
 
     @Override
     @NotNull
-    default Optional<Component> prefix() {
-        return data().prefix();
-    }
-
-    @Override
-    default @NotNull Optional<Component> suffix() {
-        return data().suffix();
-    }
-
-    @Override
-    @NotNull
-    default Optional<NamedTextColor> color() {
-        return data().color();
+    default <T> Optional<T> option(@NotNull AtomiOption<T> option) {
+        return data().option(option);
     }
 
     @Override

@@ -13,7 +13,8 @@ import org.jetbrains.annotations.NotNull;
 public class UserJsonSerializer extends EntityJsonSerializer {
     private final AbstractAtomi atomi;
 
-    public UserJsonSerializer(AbstractAtomi atomi) {
+    public UserJsonSerializer(@NotNull AbstractAtomi atomi) {
+        super(atomi.optionRegistry());
         this.atomi = atomi;
     }
 
@@ -38,9 +39,7 @@ public class UserJsonSerializer extends EntityJsonSerializer {
         return new AtomiUserDataImpl(
                 atomi,
                 deserializePermissions(jsonUser),
-                deserializePrefix(jsonUser),
-                deserializeSuffix(jsonUser),
-                deserializeColor(jsonUser),
+                deserializeOptions(jsonUser),
                 deserializeGroup(jsonUser)
         );
     }

@@ -4,6 +4,7 @@ import io.github.pandier.atomi.AtomiGroup;
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.internal.AbstractAtomi;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.internal.DefaultPermissionProvider;
 import io.github.pandier.atomi.spigot.AtomiGroupUpdateEvent;
 import io.github.pandier.atomi.spigot.AtomiUserUpdateEvent;
@@ -32,8 +33,8 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     protected final Map<UUID, BukkitTask> userUpdateTasks = new ConcurrentHashMap<>();
     protected final Map<String, BukkitTask> groupUpdateTasks = new ConcurrentHashMap<>();
 
-    SpigotAtomiImpl(Path path, Plugin plugin) {
-        super(path, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
+    SpigotAtomiImpl(Path path, AtomiOptionRegistry optionRegistry, Plugin plugin) {
+        super(path, optionRegistry, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
         this.plugin = plugin;
     }
 

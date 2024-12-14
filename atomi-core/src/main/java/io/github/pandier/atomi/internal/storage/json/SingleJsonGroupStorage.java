@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.internal.AbstractAtomi;
 import io.github.pandier.atomi.internal.factory.GroupFactory;
 import io.github.pandier.atomi.internal.storage.GroupStorage;
 import io.github.pandier.atomi.internal.storage.StorageException;
@@ -24,9 +25,9 @@ public class SingleJsonGroupStorage implements GroupStorage {
     private final Path path;
     private final Gson gson;
 
-    public SingleJsonGroupStorage(@NotNull Path path, @NotNull GroupFactory groupFactory, @NotNull Gson gson) {
+    public SingleJsonGroupStorage(@NotNull Path path, @NotNull AbstractAtomi atomi, @NotNull GroupFactory groupFactory, @NotNull Gson gson) {
         this.groupFactory = groupFactory;
-        this.groupSerializer = new GroupJsonSerializer();
+        this.groupSerializer = new GroupJsonSerializer(atomi.optionRegistry());
         this.path = path;
         this.gson = gson;
     }

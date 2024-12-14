@@ -2,11 +2,10 @@ package io.github.pandier.atomi.internal;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.github.pandier.atomi.Atomi;
-import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.AtomiUser;
+import io.github.pandier.atomi.*;
 import io.github.pandier.atomi.internal.factory.GroupFactory;
 import io.github.pandier.atomi.internal.factory.UserFactory;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.internal.storage.GroupStorage;
 import io.github.pandier.atomi.internal.storage.StorageException;
 import io.github.pandier.atomi.internal.storage.UserStorage;
@@ -37,6 +36,7 @@ public abstract class AbstractAtomi implements Atomi {
     protected final UserFactory userFactory;
     protected final GroupFactory groupFactory;
     protected final DefaultPermissionProvider defaultPermissionProvider;
+    protected final AtomiOptionRegistry optionRegistry;
 
     protected final UserStorage userStorage;
     protected final GroupStorage groupStorage;
@@ -44,18 +44,20 @@ public abstract class AbstractAtomi implements Atomi {
     protected final ConcurrentMap<String, AtomiGroup> groups;
     protected final ConcurrentMap<UUID, AtomiUser> userCache = new ConcurrentHashMap<>();
 
-    protected AbstractAtomi(Path path, BiConsumer<String, Throwable> errorLogger) {
+    protected AbstractAtomi(Path path, AtomiOptionRegistry optionRegistry, BiConsumer<String, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
         this.userFactory = createUserFactory();
         this.groupFactory = createGroupFactory();
         this.defaultPermissionProvider = createDefaultPermissionProvider();
+        this.optionRegistry = optionRegistry;
+        this.optionRegistry.lock();
 
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .create();
 
         this.userStorage = new MultiJsonUserStorage(path.resolve("users"), this, userFactory, gson);
-        this.groupStorage = new SingleJsonGroupStorage(path.resolve("groups.json"), groupFactory, gson);
+        this.groupStorage = new SingleJsonGroupStorage(path.resolve("groups.json"), this, groupFactory, gson);
 
         try {
             this.groups = new ConcurrentHashMap<>(groupStorage.load());
@@ -193,6 +195,10 @@ public abstract class AbstractAtomi implements Atomi {
         } catch (StorageException e) {
             errorLogger.accept("Failed saving groups after update", e);
         }
+    }
+
+    public @NotNull AtomiOptionRegistry optionRegistry() {
+        return optionRegistry;
     }
 
     public @NotNull DefaultPermissionProvider defaultPermissionProvider() {

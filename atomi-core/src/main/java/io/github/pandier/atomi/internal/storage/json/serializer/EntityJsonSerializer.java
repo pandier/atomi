@@ -3,32 +3,33 @@ package io.github.pandier.atomi.internal.storage.json.serializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.pandier.atomi.AtomiEntityData;
+import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.internal.AtomiEntityDataImpl;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 @ApiStatus.Internal
 public class EntityJsonSerializer {
-    protected static final GsonComponentSerializer ADVENTURE_SERIALIZER = GsonComponentSerializer.gson();
+    protected final AtomiOptionRegistry optionRegistry;
+
+    public EntityJsonSerializer(@NotNull AtomiOptionRegistry optionRegistry) {
+        this.optionRegistry = optionRegistry;
+    }
 
     @NotNull
     public JsonObject serialize(@NotNull AtomiEntityData data) {
         JsonObject jsonEntity = new JsonObject();
 
-        // Metadata
-        JsonObject jsonMetadata = new JsonObject();
-        data.prefix().ifPresent(component -> jsonMetadata.add("prefix", ADVENTURE_SERIALIZER.serializeToTree(component)));
-        data.suffix().ifPresent(component -> jsonMetadata.add("suffix", ADVENTURE_SERIALIZER.serializeToTree(component)));
-        data.color().ifPresent(color -> jsonMetadata.add("color", ADVENTURE_SERIALIZER.serializer().toJsonTree(color)));
-        if (!jsonMetadata.isEmpty())
-            jsonEntity.add("metadata", jsonMetadata);
+        // Options
+        JsonObject jsonOptions = new JsonObject();
+        for (Map.Entry<AtomiOption<?>, Object> entry : data.options().entrySet())
+            jsonOptions.add(entry.getKey().name(), serializeOption(entry.getKey(), entry.getValue()));
+        if (!jsonOptions.isEmpty())
+            jsonEntity.add("options", jsonOptions);
 
         // Permissions
         JsonObject permissions = new JsonObject();
@@ -40,47 +41,44 @@ public class EntityJsonSerializer {
         return jsonEntity;
     }
 
+    protected <T> JsonElement serializeOption(@NotNull AtomiOption<T> option, @NotNull Object value) {
+        if (!option.type().classType().isInstance(value))
+            throw new IllegalStateException("Value of option '" + option.name() + "' is of invalid type " + value.getClass() + " (expected " + option.type().classType() + ")");
+        return option.type().serializeToJson(option.type().classType().cast(value));
+    }
+
     @NotNull
     public AtomiEntityDataImpl deserialize(@NotNull JsonObject jsonEntity) {
         return new AtomiEntityDataImpl(
                 deserializePermissions(jsonEntity),
-                deserializePrefix(jsonEntity),
-                deserializeSuffix(jsonEntity),
-                deserializeColor(jsonEntity)
+                deserializeOptions(jsonEntity)
         );
     }
 
-    protected <T> T deserializeMetadataElement(@NotNull JsonObject jsonEntity, @NotNull String name, Function<JsonElement, T> function) {
-        if (!jsonEntity.has("metadata"))
-            return null;
-        JsonObject jsonMetadata = jsonEntity.getAsJsonObject("metadata");
-        if (!jsonMetadata.has(name))
-            return null;
-        return function.apply(jsonMetadata.get(name));
-    }
-
-    protected Component deserializePrefix(@NotNull JsonObject jsonEntity) {
-        return deserializeMetadataElement(jsonEntity, "prefix", ADVENTURE_SERIALIZER::deserializeFromTree);
-    }
-
-    protected Component deserializeSuffix(@NotNull JsonObject jsonEntity) {
-        return deserializeMetadataElement(jsonEntity, "suffix", ADVENTURE_SERIALIZER::deserializeFromTree);
-    }
-
-    protected NamedTextColor deserializeColor(@NotNull JsonObject jsonEntity) {
-        return deserializeMetadataElement(jsonEntity, "color", x -> ADVENTURE_SERIALIZER.serializer().fromJson(x, NamedTextColor.class));
+    protected Map<AtomiOption<?>, Object> deserializeOptions(@NotNull JsonObject jsonEntity) {
+        Map<AtomiOption<?>, Object> options = new HashMap<>();
+        JsonObject jsonOptions = jsonEntity.getAsJsonObject("options");
+        if (jsonOptions != null) {
+            for (Map.Entry<String, JsonElement> entry : jsonOptions.entrySet()) {
+                if (entry.getValue().isJsonNull())
+                    continue;
+                AtomiOption<?> option = optionRegistry.get(entry.getKey());
+                if (option == null)
+                    continue;
+                options.put(option, option.type().deserializeFromJson(entry.getValue()));
+            }
+        }
+        return options;
     }
 
     protected Map<String, Boolean> deserializePermissions(@NotNull JsonObject jsonEntity) {
         Map<String, Boolean> permissions = new HashMap<>();
-        if (jsonEntity.has("permissions")) {
-            JsonObject jsonPermissions = jsonEntity.getAsJsonObject("permissions");
-            if (jsonPermissions != null) {
-                for (Map.Entry<String, JsonElement> entry : jsonPermissions.entrySet()) {
-                    if (entry.getValue().isJsonNull())
-                        continue;
-                    permissions.put(entry.getKey(), entry.getValue().getAsBoolean());
-                }
+        JsonObject jsonPermissions = jsonEntity.getAsJsonObject("permissions");
+        if (jsonPermissions != null) {
+            for (Map.Entry<String, JsonElement> entry : jsonPermissions.entrySet()) {
+                if (entry.getValue().isJsonNull())
+                    continue;
+                permissions.put(entry.getKey(), entry.getValue().getAsBoolean());
             }
         }
         return permissions;

@@ -1,7 +1,8 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
 import dev.jorel.commandapi.arguments.*;
-import io.github.pandier.atomi.AtomiEntity;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
+import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
@@ -11,16 +12,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import static io.github.pandier.atomi.spigot.internal.command.Commands.createGroupArgument;
 
 @ApiStatus.Internal
 public class UserCommand {
-    public static Argument<?> create() {
+    public static Argument<?> create(AtomiOptionRegistry optionRegistry) {
         return new LiteralArgument("user")
                 .then(new OfflinePlayerArgument("player")
                         .then(new LiteralArgument("permission")
@@ -33,10 +32,7 @@ public class UserCommand {
                                                 .executes((sender, args) -> {
                                                     return setPermission(sender, (OfflinePlayer) args.get("player"), (String) args.get("permission"), Tristate.UNSET);
                                                 }))))
-                        .then(new LiteralArgument("metadata")
-                                .then(createMetadataArgument("prefix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setPrefix))
-                                .then(createMetadataArgument("suffix", AdventureChatComponentArgument::new, x -> x, AtomiEntity::setSuffix))
-                                .then(createMetadataArgument("color", AdventureChatColorArgument::new, x -> Component.text(x.toString()).color(x), AtomiEntity::setColor)))
+                        .then(appendOptionArguments(new LiteralArgument("option"), optionRegistry))
                         .then(new LiteralArgument("group")
                                 .then(createGroupArgument()
                                         .executes((sender, args) -> {
@@ -48,18 +44,23 @@ public class UserCommand {
                                 })));
     }
 
+    private static Argument<?> appendOptionArguments(Argument<?> argument, AtomiOptionRegistry optionRegistry) {
+        optionRegistry.forEach(option -> appendOptionArgument(argument, option));
+        return argument;
+    }
+
     @SuppressWarnings("unchecked")
-    private static <T> Argument<?> createMetadataArgument(String name, Function<String, Argument<T>> valueArgumentFactory, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
-        return new LiteralArgument(name)
+    private static <T> void appendOptionArgument(Argument<?> argument, AtomiOption<T> option) {
+        argument.then(new LiteralArgument(option.name())
                 .then(new LiteralArgument("set")
-                        .then(valueArgumentFactory.apply("value")
+                        .then(AtomiOptionTypeArguments.createArgument(option.type(), "value")
                                 .executes((sender, args) -> {
-                                    return setMetadata(sender, (OfflinePlayer) args.get("player"), name, (T) args.get("value"), display, setter);
+                                    return setOption(sender, (OfflinePlayer) args.get("player"), option, (T) args.get("value"));
                                 })))
                 .then(new LiteralArgument("unset")
                         .executes((sender, args) -> {
-                            return setMetadata(sender, (OfflinePlayer) args.get("player"), name, null, display, setter);
-                        }));
+                            return setOption(sender, (OfflinePlayer) args.get("player"), option, null);
+                        })));
     }
 
     private static int group(CommandSender sender, OfflinePlayer player, String group) {
@@ -103,22 +104,22 @@ public class UserCommand {
         return 1;
     }
 
-    private static <T> int setMetadata(CommandSender sender, OfflinePlayer player, String key, @Nullable T value, Function<T, Component> display, BiConsumer<AtomiEntity, T> setter) {
+    private static <T> int setOption(CommandSender sender, OfflinePlayer player, @NotNull AtomiOption<T> option, @Nullable T value) {
         AtomiUser user = SpigotAtomi.get().user(player);
 
-        setter.accept(user, value);
+        user.setOption(option, value);
 
-        String capitalizedKey = Character.toUpperCase(key.charAt(0)) + key.substring(1) + " for user ";
+        Component text = Component.text("Option ")
+                .append(Component.text(option.name()).color(NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(" for user "))
+                .append(Component.text(String.valueOf(player.getName())).color(NamedTextColor.WHITE));
         if (value != null) {
-            Commands.send(sender, Component.text(capitalizedKey)
-                    .append(Component.text(String.valueOf(player.getName())).color(NamedTextColor.WHITE))
-                    .append(Component.text(" set to "))
-                    .append(Component.empty().color(NamedTextColor.WHITE).append(display.apply(value))), true);
+            text = text.append(Component.text(" set to "))
+                    .append(Component.empty().color(NamedTextColor.WHITE).append(option.type().displayText(value)));
         } else {
-            Commands.send(sender, Component.text(capitalizedKey)
-                    .append(Component.text(String.valueOf(player.getName())).color(NamedTextColor.WHITE))
-                    .append(Component.text(" unset")), true);
+            text = text.append(Component.text(" unset"));
         }
+        Commands.send(sender, text, true);
 
         return 1;
     }

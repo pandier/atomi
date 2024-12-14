@@ -1,6 +1,7 @@
 package io.github.pandier.atomi.spigot.internal.command.info;
 
 import io.github.pandier.atomi.*;
+import io.github.pandier.atomi.AtomiOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -18,7 +19,7 @@ import java.util.function.Function;
 public class InfoBuilder {
     private Component component = Component.empty();
     private final Set<String> permissionKeys = new HashSet<>();
-    private final Set<String> metadataKeys = new HashSet<>();
+    private final Set<String> optionKeys = new HashSet<>();
 
     private static String entityToSource(AtomiEntity entity) {
         return switch (entity) {
@@ -42,7 +43,7 @@ public class InfoBuilder {
         builder.append(Component.text(" "));
         builder.join(user.contexts(), context -> Component.text(context.identifier()).color(NamedTextColor.BLUE));
 
-        builder.metadata(user);
+        builder.options(user);
         builder.permissions(user);
         return builder.build();
     }
@@ -51,7 +52,7 @@ public class InfoBuilder {
     public static Component group(@NotNull AtomiGroup group) {
         InfoBuilder builder = new InfoBuilder();
         builder.append(Component.text(group.name()));
-        builder.metadata(group);
+        builder.options(group);
         builder.permissions(group);
         return builder.build();
     }
@@ -70,23 +71,22 @@ public class InfoBuilder {
         append(Component.text("\n  " + name + ":").color(NamedTextColor.GRAY));
     }
 
-    public void metadata(AtomiEntity entity) {
-        title("Metadata");
-        metadataEntries(entityToSource(entity), entity.data());
+    public void options(AtomiEntity entity) {
+        title("Options");
+        optionEntries(entityToSource(entity), entity.data());
         for (AtomiEntity parent : entity.parents())
-            metadataEntries(entityToSource(parent), parent.data());
+            optionEntries(entityToSource(parent), parent.data());
     }
 
-    public void metadataEntries(@Nullable String source, AtomiEntityData data) {
-        metadataEntry(source, "prefix", data.prefix().orElse(null));
-        metadataEntry(source, "suffix", data.suffix().orElse(null));
-        metadataEntry(source, "color", data.color().map(color -> Component.text(color.toString()).color(color)).orElse(null));
+    public void optionEntries(@Nullable String source, AtomiEntityData data) {
+        for (Map.Entry<AtomiOption<?>, Object> entry : data.options().entrySet())
+            optionEntry(source, entry.getKey(), entry.getValue());
     }
 
-    public void metadataEntry(@Nullable String source, String key, @Nullable Component value) {
-        if (value == null || metadataKeys.contains(key)) return;
-        metadataKeys.add(key);
-        entry(source, key, NamedTextColor.LIGHT_PURPLE, value);
+    public <T> void optionEntry(@Nullable String source, AtomiOption<T> option, @Nullable Object value) {
+        if (value == null || optionKeys.contains(option.name())) return;
+        optionKeys.add(option.name());
+        entry(source, option.name(), NamedTextColor.LIGHT_PURPLE, option.type().displayText(option.type().classType().cast(value)));
     }
 
     public void permissions(AtomiEntity entity) {

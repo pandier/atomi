@@ -2,6 +2,9 @@ package io.github.pandier.atomi.spigot.internal;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
+import io.github.pandier.atomi.AtomiOption;
+import io.github.pandier.atomi.spigot.internal.command.AtomiOptionTypeArguments;
 import io.github.pandier.atomi.spigot.internal.command.Commands;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,10 +14,18 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
+    private static final AtomiOptionRegistry OPTION_REGISTRY = new AtomiOptionRegistry();
     public static SpigotAtomiImpl atomi = null;
+
+    public static void registerOption(@NotNull AtomiOption<?> option) {
+        if (!AtomiOptionTypeArguments.hasArgumentFactory(option.type()))
+            throw new IllegalArgumentException("Unknown option type '" + option.type() + "'");
+        OPTION_REGISTRY.register(option);
+    }
 
     @Override
     public void onLoad() {
@@ -25,12 +36,12 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         CommandAPI.onEnable();
 
-        atomi = new SpigotAtomiImpl(getDataFolder().toPath(), this);
+        atomi = new SpigotAtomiImpl(getDataFolder().toPath(), OPTION_REGISTRY, this);
 
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
-        Commands.register();
+        Commands.register(atomi.optionRegistry());
 
         // Initiate all players in case of a reload
         for (Player player : getServer().getOnlinePlayers()) {
