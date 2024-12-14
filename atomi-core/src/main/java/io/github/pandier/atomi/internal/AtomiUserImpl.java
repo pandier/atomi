@@ -56,6 +56,13 @@ public class AtomiUserImpl extends AbstractAtomiEntity implements AtomiUser {
     }
 
     @Override
+    public boolean hasContext(@NotNull AtomiContext context) {
+        synchronized (contexts) {
+            return contexts.contains(context);
+        }
+    }
+
+    @Override
     public @NotNull Set<AtomiContext> contexts() {
         synchronized (contexts) {
             return new HashSet<>(contexts);
