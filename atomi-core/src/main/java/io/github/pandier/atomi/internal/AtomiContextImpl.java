@@ -3,6 +3,7 @@ package io.github.pandier.atomi.internal;
 import io.github.pandier.atomi.AtomiContext;
 import io.github.pandier.atomi.AtomiEntityData;
 import io.github.pandier.atomi.Tristate;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
@@ -10,20 +11,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 @ApiStatus.Internal
 public class AtomiContextImpl implements AtomiContext, NoParentAtomiEntity {
-    private final String identifier;
+    private final Key key;
     private final AtomiEntityDataImpl data;
 
-    private AtomiContextImpl(String identifier, AtomiEntityDataImpl data) {
-        this.identifier = identifier;
+    private AtomiContextImpl(Key key, AtomiEntityDataImpl data) {
+        this.key = key;
         this.data = data;
     }
 
     @Override
-    public @NotNull String identifier() {
-        return identifier;
+    public @NotNull Key key() {
+        return key;
     }
 
     @Override
@@ -31,21 +33,35 @@ public class AtomiContextImpl implements AtomiContext, NoParentAtomiEntity {
         return data;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        AtomiContextImpl that = (AtomiContextImpl) o;
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
+    }
+
+    @Override
+    public String toString() {
+        return "AtomiContextImpl{" +
+                "key=" + key +
+                '}';
+    }
+
     @ApiStatus.Internal
     public static class Builder implements AtomiContext.Builder {
-        private String identifier;
+        private final Key key;
         private final HashMap<String, Boolean> permissions = new HashMap<>();
         private Component prefix;
         private Component suffix;
         private NamedTextColor color;
 
-        public Builder(@NotNull String identifier) {
-            this.identifier = identifier;
-        }
-
-        public Builder setIdentifier(@NotNull String identifier) {
-            this.identifier = identifier;
-            return this;
+        public Builder(@NotNull Key key) {
+            this.key = key;
         }
 
         public Builder setPermission(@NotNull String permission, Tristate value) {
@@ -73,7 +89,7 @@ public class AtomiContextImpl implements AtomiContext, NoParentAtomiEntity {
 
         @Override
         public AtomiContext build() {
-            return new AtomiContextImpl(identifier, new AtomiEntityDataImpl(permissions, prefix, suffix, color));
+            return new AtomiContextImpl(key, new AtomiEntityDataImpl(permissions, prefix, suffix, color));
         }
     }
 }

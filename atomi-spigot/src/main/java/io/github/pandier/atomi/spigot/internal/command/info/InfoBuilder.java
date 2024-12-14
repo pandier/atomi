@@ -41,7 +41,7 @@ public class InfoBuilder {
         builder.title("Contexts");
         builder.append(Component.text(" "));
         if (!user.contexts().isEmpty()) {
-            builder.join(user.contexts(), context -> Component.text(context.identifier()).color(NamedTextColor.BLUE));
+            builder.join(user.contexts(), context -> Component.text(context.key().asString()).color(NamedTextColor.BLUE));
         } else {
             builder.append(Component.text("None").color(NamedTextColor.DARK_GRAY));
         }
