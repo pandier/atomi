@@ -60,9 +60,9 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
         subCommands.add(argument);
     }
 
-    protected void entitySubCommand(@NotNull String name, @NotNull Consumer<AtomiArgument> consumer) {
+    protected void entitySubCommand(@NotNull String name, @NotNull Consumer<AtomiArgument<?>> consumer) {
         subCommand(name, x -> {
-            AtomiArgument entityArgument = createEntityArgument();
+            AtomiArgument<?> entityArgument = createEntityArgument();
             consumer.accept(entityArgument);
             x.then(entityArgument);
         });
@@ -75,11 +75,11 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
     protected abstract E getEntity(@NotNull AtomiCommandContext ctx);
 
     @NotNull
-    protected abstract AtomiArgument createEntityArgument();
+    protected abstract AtomiArgument<?> createEntityArgument();
 
     @Override
-    public @NotNull AtomiArgument create() {
-        AtomiArgument argument = new LiteralAtomiArgument(name);
+    public @NotNull LiteralAtomiArgument create() {
+        LiteralAtomiArgument argument = new LiteralAtomiArgument(name);
         for (LiteralAtomiArgument subCommand : subCommands)
             argument.then(subCommand);
         return argument;

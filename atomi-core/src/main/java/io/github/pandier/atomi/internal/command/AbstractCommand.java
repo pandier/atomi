@@ -1,15 +1,17 @@
 package io.github.pandier.atomi.internal.command;
 
 import io.github.pandier.atomi.Tristate;
-import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
+import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@ApiStatus.Internal
 public abstract class AbstractCommand {
 
     @NotNull
-    public abstract AtomiArgument create();
+    public abstract LiteralAtomiArgument create();
 
     @NotNull
     public static Component formatGroup(@NotNull String group) {

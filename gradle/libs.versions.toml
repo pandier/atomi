@@ -4,6 +4,7 @@ adventure = "4.17.0"
 gson = "2.11.0"
 spigot = "1.20.6-R0.1-SNAPSHOT"
 commandapi = "9.5.2"
+brigadier = "1.0.18"
 
 [libraries]
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
@@ -13,3 +14,4 @@ adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializ
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 commandapi-bukkit = { module = "dev.jorel:commandapi-bukkit-shade", version.ref = "commandapi" }
+brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }

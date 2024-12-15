@@ -9,23 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiStatus.Internal
-public abstract class AtomiArgument {
+public abstract class AtomiArgument<T extends AtomiArgument<T>> {
     private final String name;
-    private final List<AtomiArgument> children = new ArrayList<>();
+    private final List<AtomiArgument<?>> children = new ArrayList<>();
     private AtomiCommandExecutor executor = null;
 
     public AtomiArgument(@NotNull String name) {
         this.name = name;
     }
 
-    public AtomiArgument then(@NotNull AtomiArgument argument) {
+    protected abstract T getThis();
+
+    public T then(@NotNull AtomiArgument<?> argument) {
         children.add(argument);
-        return this;
+        return getThis();
     }
 
-    public AtomiArgument executes(@NotNull AtomiCommandExecutor executor) {
+    public T executes(@NotNull AtomiCommandExecutor executor) {
         this.executor = executor;
-        return this;
+        return getThis();
     }
 
     @NotNull
@@ -39,7 +41,7 @@ public abstract class AtomiArgument {
     }
 
     @NotNull
-    public List<AtomiArgument> children() {
+    public List<AtomiArgument<?>> children() {
         return children;
     }
 }

@@ -7,11 +7,13 @@ import io.github.pandier.atomi.internal.command.argument.GroupAtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.UserAtomiArgument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+@ApiStatus.Internal
 public class UserCommand extends AbstractEntityCommand<AtomiUser> {
     private final Function<AtomiUser, @Nullable String> displayNameProvider;
 
@@ -53,7 +55,7 @@ public class UserCommand extends AbstractEntityCommand<AtomiUser> {
     }
 
     @Override
-    protected @NotNull AtomiArgument createEntityArgument() {
+    protected @NotNull AtomiArgument<?> createEntityArgument() {
         return new UserAtomiArgument("user");
     }
 }

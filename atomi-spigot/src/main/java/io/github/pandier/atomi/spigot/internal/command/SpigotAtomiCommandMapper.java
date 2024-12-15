@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class SpigotAtomiCommandMapper {
-    private final AtomiArgument atomiArgument;
+    private final AtomiArgument<?> atomiArgument;
     private final Map<String, Function<Object, Object>> argumentMappers;
 
-    private SpigotAtomiCommandMapper(AtomiArgument atomiArgument, Map<String, Function<Object, Object>> argumentMappers) {
+    private SpigotAtomiCommandMapper(AtomiArgument<?> atomiArgument, Map<String, Function<Object, Object>> argumentMappers) {
         this.atomiArgument = atomiArgument;
         this.argumentMappers = argumentMappers;
     }
@@ -84,7 +84,7 @@ public class SpigotAtomiCommandMapper {
 
         Argument<?> argument = createArgument();
 
-        for (AtomiArgument child : atomiArgument.children()) {
+        for (AtomiArgument<?> child : atomiArgument.children()) {
             SpigotAtomiCommandMapper mapper = new SpigotAtomiCommandMapper(child, new HashMap<>(argumentMappers));
             argument.then(mapper.map());
         }
@@ -97,7 +97,7 @@ public class SpigotAtomiCommandMapper {
     }
 
     @NotNull
-    public static Argument<?> map(@NotNull AtomiArgument atomiArgument) {
+    public static Argument<?> map(@NotNull AtomiArgument<?> atomiArgument) {
         SpigotAtomiCommandMapper mapper = new SpigotAtomiCommandMapper(atomiArgument, new HashMap<>());
         return mapper.map();
     }

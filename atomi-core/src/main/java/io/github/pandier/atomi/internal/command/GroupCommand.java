@@ -6,8 +6,10 @@ import io.github.pandier.atomi.internal.command.argument.GroupAtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.StringAtomiArgument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@ApiStatus.Internal
 public class GroupCommand extends AbstractEntityCommand<AtomiGroup> {
 
     public GroupCommand() {
@@ -56,7 +58,7 @@ public class GroupCommand extends AbstractEntityCommand<AtomiGroup> {
     }
 
     @Override
-    protected @NotNull AtomiArgument createEntityArgument() {
+    protected @NotNull AtomiArgument<?> createEntityArgument() {
         return new GroupAtomiArgument("group");
     }
 }
