@@ -2,7 +2,7 @@ package io.github.pandier.atomi.sponge.internal;
 
 import com.google.inject.Inject;
 import io.github.pandier.atomi.sponge.SpongeAtomi;
-import io.github.pandier.atomi.sponge.internal.sponge.SpongeAtomiCommand;
+import io.github.pandier.atomi.sponge.internal.command.SpongeAtomiCommand;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.command.Command;

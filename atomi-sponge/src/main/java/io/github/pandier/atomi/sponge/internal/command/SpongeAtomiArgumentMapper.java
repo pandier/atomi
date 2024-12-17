@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.sponge.internal.sponge;
+package io.github.pandier.atomi.sponge.internal.command;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
