@@ -50,7 +50,7 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
                     .append(formatTristate(value));
         }
 
-        ctx.sendFeedback(response);
+        ctx.sendMessage(response);
         return true;
     }
 

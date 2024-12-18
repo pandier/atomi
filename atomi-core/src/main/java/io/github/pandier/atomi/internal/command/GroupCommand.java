@@ -28,7 +28,7 @@ public class GroupCommand extends AbstractEntityCommand<AtomiGroup> {
         if (group.isDefault())
             throw new IllegalArgumentException("Default group cannot be removed");
         ctx.atomi().removeGroup(group);
-        ctx.sendFeedback(Component.text("Removed group ").color(NamedTextColor.GRAY)
+        ctx.sendMessage(Component.text("Removed group ").color(NamedTextColor.GRAY)
                 .append(Component.text(group.name()).color(NamedTextColor.WHITE)));
         return true;
     }
@@ -37,13 +37,13 @@ public class GroupCommand extends AbstractEntityCommand<AtomiGroup> {
         if (ctx.atomi().groupExists(name))
             throw new IllegalArgumentException("Group with the name '" + name + "' already exists");
         AtomiGroup group = ctx.atomi().getOrCreateGroup(name);
-        ctx.sendFeedback(Component.text("Created group ").color(NamedTextColor.GRAY)
+        ctx.sendMessage(Component.text("Created group ").color(NamedTextColor.GRAY)
                 .append(Component.text(group.name()).color(NamedTextColor.WHITE)));
         return true;
     }
 
     protected boolean executeInfo(AtomiCommandContext ctx, AtomiGroup group) {
-        ctx.sendFeedback(EntityInfoBuilder.group(group));
+        ctx.sendMessage(EntityInfoBuilder.group(group));
         return true;
     }
 

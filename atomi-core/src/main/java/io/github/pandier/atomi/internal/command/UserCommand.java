@@ -31,7 +31,7 @@ public class UserCommand extends AbstractEntityCommand<AtomiUser> {
     protected boolean executeGroup(AtomiCommandContext ctx, AtomiUser user, AtomiGroup group) {
         user.setGroup(group);
 
-        ctx.sendFeedback(Component.text("Group of ").color(NamedTextColor.GRAY)
+        ctx.sendMessage(Component.text("Group of ").color(NamedTextColor.GRAY)
                 .append(display(user))
                 .append(Component.text(" set to "))
                 .append(formatGroup(group.name())));
@@ -39,7 +39,7 @@ public class UserCommand extends AbstractEntityCommand<AtomiUser> {
     }
 
     protected boolean executeInfo(AtomiCommandContext ctx, AtomiUser user) {
-        ctx.sendFeedback(EntityInfoBuilder.player(displayNameProvider.apply(user), user));
+        ctx.sendMessage(EntityInfoBuilder.player(displayNameProvider.apply(user), user));
         return true;
     }
 

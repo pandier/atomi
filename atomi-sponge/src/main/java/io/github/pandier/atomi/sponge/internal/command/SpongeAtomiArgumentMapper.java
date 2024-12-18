@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.sponge.internal.sponge;
+package io.github.pandier.atomi.sponge.internal.command;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -6,10 +6,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.BooleanAtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.StringAtomiArgument;
+import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
+import io.github.pandier.atomi.internal.command.argument.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.CommandCause;
@@ -39,13 +37,13 @@ public class SpongeAtomiArgumentMapper {
             case LiteralAtomiArgument ignored -> (CommandTreeNode.Basic) CommandTreeNode.literal();
             case StringAtomiArgument ignored -> CommandTreeNodeTypes.STRING.get().createNode();
             case BooleanAtomiArgument ignored -> CommandTreeNodeTypes.BOOL.get().createNode();
+            case UserAtomiArgument ignored -> CommandTreeNodeTypes.GAME_PROFILE.get().createNode();
             default -> throw new IllegalArgumentException("Unknown argument type " + atomiArgument.getClass());
         };
 
-        if (atomiArgument.executor() != null) {
-            this.argumentBuilder.executes(ctx -> {
-                throw new UnsupportedOperationException("Executor not implemented yet"); // TODO
-            });
+        AtomiCommandExecutor executor = atomiArgument.executor();
+        if (executor != null) {
+            this.argumentBuilder.executes(ctx -> executor.execute(new SpongeAtomiCommandContext(ctx)) ? 1 : 0);
             this.completionNode.executable();
         }
 

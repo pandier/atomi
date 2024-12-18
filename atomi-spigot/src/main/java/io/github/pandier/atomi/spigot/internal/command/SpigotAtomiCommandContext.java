@@ -24,7 +24,7 @@ public class SpigotAtomiCommandContext extends AtomiCommandContext {
     }
 
     @Override
-    public void sendFeedback(@NotNull Component component) {
+    public void sendMessage(@NotNull Component component) {
         sender.sendMessage(LEGACY_COMPONENT_SERIALIZER.serialize(component));
     }
 }

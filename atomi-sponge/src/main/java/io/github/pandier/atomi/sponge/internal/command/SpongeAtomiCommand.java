@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.sponge.internal.sponge;
+package io.github.pandier.atomi.sponge.internal.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -30,7 +30,10 @@ public class SpongeAtomiCommand implements Command.Raw {
             public @NotNull LiteralAtomiArgument create() {
                 return new LiteralAtomiArgument("test")
                         .then(new LiteralAtomiArgument("weee")
-                                .executes(ctx -> true));
+                                .executes(ctx -> {
+                                    ctx.sendMessage(Component.text("Hello"));
+                                    return true;
+                                }));
             }
         });
     }

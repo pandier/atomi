@@ -18,14 +18,12 @@ public abstract class AtomiCommandContext {
         this.arguments = arguments;
     }
 
-    public abstract void sendFeedback(@NotNull Component component);
-
-    public <T> Optional<T> optional(@NotNull String key, Class<T> type) {
-        return Optional.ofNullable(arguments.get(key)).map(type::cast);
-    }
+    public abstract void sendMessage(@NotNull Component component);
 
     public <T> T get(@NotNull String key, @NotNull Class<T> type) {
-        return optional(key, type).orElseThrow(() -> new IllegalArgumentException("Missing argument '" + key + "'"));
+        return Optional.ofNullable(arguments.get(key))
+                .map(type::cast)
+                .orElseThrow(() -> new IllegalArgumentException("Missing argument '" + key + "'"));
     }
 
     @NotNull
