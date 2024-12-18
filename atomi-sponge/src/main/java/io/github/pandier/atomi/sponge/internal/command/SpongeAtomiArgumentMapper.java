@@ -1,6 +1,5 @@
 package io.github.pandier.atomi.sponge.internal.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -8,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
+import io.github.pandier.atomi.sponge.internal.command.brigadier.AtomiUserArgumentType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.CommandCause;
@@ -20,22 +20,25 @@ public class SpongeAtomiArgumentMapper {
     private final CommandTreeNode.Argument<?> completionNode;
 
     public SpongeAtomiArgumentMapper(@NotNull AtomiArgument<?> atomiArgument) {
-        ArgumentType<?> argumentType = switch (atomiArgument) {
-            case LiteralAtomiArgument ignored -> null;
-            case StringAtomiArgument string -> switch (string.type()) {
+        this.argumentBuilder = switch (atomiArgument) {
+            case LiteralAtomiArgument literal -> LiteralArgumentBuilder.literal(literal.name());
+            case StringAtomiArgument string -> RequiredArgumentBuilder.argument(string.name(), switch (string.type()) {
                 case WORD -> StringArgumentType.word();
                 case GREEDY -> StringArgumentType.greedyString();
                 case STRING -> StringArgumentType.string();
-            };
-            case BooleanAtomiArgument ignored -> BoolArgumentType.bool();
+            });
+            case BooleanAtomiArgument bool -> RequiredArgumentBuilder.argument(bool.name(), BoolArgumentType.bool());
+            case UserAtomiArgument user -> RequiredArgumentBuilder.argument(user.name(), new AtomiUserArgumentType());
             default -> throw new IllegalArgumentException("Unknown argument type " + atomiArgument.getClass());
         };
 
-        this.argumentBuilder = argumentType == null ? LiteralArgumentBuilder.literal(atomiArgument.name()) : RequiredArgumentBuilder.argument(atomiArgument.name(), argumentType);
-
         this.completionNode = switch (atomiArgument) {
             case LiteralAtomiArgument ignored -> (CommandTreeNode.Basic) CommandTreeNode.literal();
-            case StringAtomiArgument ignored -> CommandTreeNodeTypes.STRING.get().createNode();
+            case StringAtomiArgument string -> switch (string.type()) {
+                case WORD -> CommandTreeNodeTypes.STRING.get().createNode().word();
+                case GREEDY -> CommandTreeNodeTypes.STRING.get().createNode().greedy();
+                case STRING -> CommandTreeNodeTypes.STRING.get().createNode();
+            };
             case BooleanAtomiArgument ignored -> CommandTreeNodeTypes.BOOL.get().createNode();
             case UserAtomiArgument ignored -> CommandTreeNodeTypes.GAME_PROFILE.get().createNode();
             default -> throw new IllegalArgumentException("Unknown argument type " + atomiArgument.getClass());
