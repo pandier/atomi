@@ -8,19 +8,25 @@ import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.sponge.SpongeAtomi;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.profile.GameProfile;
 
 @ApiStatus.Internal
 public class AtomiUserArgumentType implements ArgumentType<AtomiUser> {
-    public static final SimpleCommandExceptionType UNKNOWN_PLAYER_EXCEPTION = new SimpleCommandExceptionType(Component.translatable("argument.player.unknown"));
+    public static final SimpleCommandExceptionType UNKNOWN_PLAYER_EXCEPTION =
+            new SimpleCommandExceptionType(new ComponentMessage(Component.translatable("argument.player.unknown")));
+
+    @NotNull
+    public static AtomiUserArgumentType atomiUser() {
+        return new AtomiUserArgumentType();
+    }
 
     @Override
     public AtomiUser parse(StringReader reader) throws CommandSyntaxException {
         if (reader.canRead() && reader.peek() == '@') {
             // TODO
-            throw new SimpleCommandExceptionType(Component.text("Selectors are not yet supported")).create();
-            throw new UnsupportedOperationException();
+            throw new SimpleCommandExceptionType(new ComponentMessage(Component.text("Selectors are not yet supported"))).create();
         }
         int index = reader.getCursor();
         while (reader.canRead() && reader.peek() != ' ')
