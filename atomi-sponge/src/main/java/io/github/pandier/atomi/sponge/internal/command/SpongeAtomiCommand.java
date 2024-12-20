@@ -26,8 +26,10 @@ import java.util.Optional;
 
 @ApiStatus.Internal
 public class SpongeAtomiCommand implements Command.Raw {
+    private static final String PERMISSION = "atomi.command";
+
     private final CommandDispatcher<CommandCause> dispatcher = new CommandDispatcher<>();
-    private final CommandTreeNode.Root completionTree = (CommandTreeNode.Root) CommandTreeNode.root();
+    private final CommandTreeNode.Root completionTree = CommandTreeNode.root().requires(this::canExecute);
 
     public SpongeAtomiCommand() {
         register(new UserCommand(user -> Sponge.server().gameProfileManager().cache().findById(user.uuid()).flatMap(GameProfile::name).orElse(null)));
@@ -62,7 +64,7 @@ public class SpongeAtomiCommand implements Command.Raw {
 
     @Override
     public boolean canExecute(CommandCause cause) {
-        return cause.hasPermission("atomi.command");
+        return cause.hasPermission(PERMISSION);
     }
 
     @Override
