@@ -2,6 +2,7 @@ package io.github.pandier.atomi.internal.command;
 
 import io.github.pandier.atomi.AtomiEntity;
 import io.github.pandier.atomi.Tristate;
+import io.github.pandier.atomi.internal.AbstractAtomi;
 import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.BooleanAtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
@@ -36,6 +37,11 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
     }
 
     protected boolean executePermission(AtomiCommandContext ctx, E entity, String permission, Tristate value) {
+        if (!AbstractAtomi.PERMISSION_VALIDITY_PREDICATE.test(permission)) {
+            ctx.sendMessage(Component.text("Permission '" + permission + "' does not match the allowed format " + AbstractAtomi.PERMISSION_PATTERN.pattern()).color(NamedTextColor.RED));
+            return false;
+        }
+
         entity.setPermission(permission, value);
 
         Component response = Component.text("Permission ").color(NamedTextColor.GRAY)

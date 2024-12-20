@@ -26,10 +26,10 @@ import java.util.regex.Pattern;
 
 @ApiStatus.Internal
 public abstract class AbstractAtomi implements Atomi {
-    protected static final Pattern GROUP_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+]+$");
-    protected static final Pattern PERMISSION_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+*]+$");
-    protected static final Predicate<String> GROUP_NAME_VALIDITY_PREDICATE = x -> GROUP_NAME_PATTERN.matcher(x).matches();
-    protected static final Predicate<String> PERMISSION_VALIDITY_PREDICATE = x -> PERMISSION_PATTERN.matcher(x).matches();
+    public static final Pattern GROUP_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+]+$");
+    public static final Pattern PERMISSION_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.+*]+$");
+    public static final Predicate<String> GROUP_NAME_VALIDITY_PREDICATE = x -> GROUP_NAME_PATTERN.matcher(x).matches();
+    public static final Predicate<String> PERMISSION_VALIDITY_PREDICATE = x -> PERMISSION_PATTERN.matcher(x).matches();
 
     protected final String DEFAULT_GROUP_NAME = "default";
 
@@ -128,7 +128,7 @@ public abstract class AbstractAtomi implements Atomi {
     @Override
     public @NotNull AtomiGroup getOrCreateGroup(@NotNull String name) {
         if (!groupNameValidityPredicate().test(name))
-            throw new IllegalArgumentException("Group name '" + name + "' contains illegal characters");
+            throw new IllegalArgumentException("Group name '" + name + "' does not match the allowed format " + GROUP_NAME_PATTERN.pattern());
         AtomiGroup group = groups.computeIfAbsent(name, (x) -> groupFactory.create(x, new AtomiEntityDataImpl()));
         saveGroupStorage();
         return group;

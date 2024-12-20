@@ -43,6 +43,8 @@ public class AtomiEntityDataImpl implements AtomiEntityData {
 
     @Override
     public void setPermission(@NotNull String permission, @NotNull Tristate value) {
+        if (!AbstractAtomi.PERMISSION_VALIDITY_PREDICATE.test(permission))
+            throw new IllegalArgumentException("Permission '" + permission + "' does not match the allowed format " + AbstractAtomi.PERMISSION_PATTERN.pattern());
         permissions.set(permission, value);
         updateCallback.accept(this);
     }
