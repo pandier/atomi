@@ -1,15 +1,17 @@
 package io.github.pandier.atomi.sponge.internal.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.pandier.atomi.AtomiUser;
+import com.mojang.brigadier.suggestion.Suggestions;
 import io.github.pandier.atomi.internal.command.AbstractCommand;
+import io.github.pandier.atomi.internal.command.GroupCommand;
+import io.github.pandier.atomi.internal.command.UserCommand;
 import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.UserAtomiArgument;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
@@ -17,6 +19,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
 import org.spongepowered.api.command.registrar.tree.CommandTreeNode;
+import org.spongepowered.api.profile.GameProfile;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,17 +30,8 @@ public class SpongeAtomiCommand implements Command.Raw {
     private final CommandTreeNode.Root completionTree = (CommandTreeNode.Root) CommandTreeNode.root();
 
     public SpongeAtomiCommand() {
-        register(new AbstractCommand() {
-            @Override
-            public @NotNull LiteralAtomiArgument create() {
-                return new LiteralAtomiArgument("test")
-                        .then(new UserAtomiArgument("user")
-                                .executes(ctx -> {
-                                    ctx.sendMessage(Component.text("User: " + ctx.get("user", AtomiUser.class).uuid()));
-                                    return true;
-                                }));
-            }
-        });
+        register(new UserCommand(user -> Sponge.server().gameProfileManager().cache().findById(user.uuid()).flatMap(GameProfile::name).orElse(null)));
+        register(new GroupCommand());
     }
 
     @SuppressWarnings("unchecked")
@@ -61,12 +55,14 @@ public class SpongeAtomiCommand implements Command.Raw {
 
     @Override
     public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
-        return List.of();
+        ParseResults<CommandCause> parseResults = dispatcher.parse(arguments.remaining(), cause);
+        Suggestions suggestions = dispatcher.getCompletionSuggestions(parseResults).join();
+        return suggestions.getList().stream().map(x -> CommandCompletion.of(x.getText())).toList();
     }
 
     @Override
     public boolean canExecute(CommandCause cause) {
-        return true;
+        return cause.hasPermission("atomi.command");
     }
 
     @Override

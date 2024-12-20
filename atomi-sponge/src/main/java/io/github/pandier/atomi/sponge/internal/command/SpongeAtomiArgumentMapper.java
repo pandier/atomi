@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
+import io.github.pandier.atomi.sponge.internal.command.brigadier.AtomiGroupArgumentType;
 import io.github.pandier.atomi.sponge.internal.command.brigadier.AtomiUserArgumentType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +38,7 @@ public class SpongeAtomiArgumentMapper {
         });
         registerWithType(BooleanAtomiArgument.class, x -> BoolArgumentType.bool(),x -> CommandTreeNodeTypes.BOOL.get().createNode());
         registerWithType(UserAtomiArgument.class, x -> AtomiUserArgumentType.atomiUser(), x -> CommandTreeNodeTypes.GAME_PROFILE.get().createNode());
+        registerWithType(GroupAtomiArgument.class, x -> AtomiGroupArgumentType.atomiGroup(), x -> CommandTreeNodeTypes.STRING.get().createNode().word().customCompletions());
     }
 
     private static <T extends AtomiArgument<T>> void registerWithType(
