@@ -30,8 +30,8 @@ import java.util.logging.Level;
 public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     protected final Plugin plugin;
 
-    protected final Map<UUID, BukkitTask> userUpdateTasks = new ConcurrentHashMap<>();
-    protected final Map<String, BukkitTask> groupUpdateTasks = new ConcurrentHashMap<>();
+    protected final Map<UUID, EntityUpdateTask> userUpdateTasks = new ConcurrentHashMap<>();
+    protected final Map<String, EntityUpdateTask> groupUpdateTasks = new ConcurrentHashMap<>();
 
     SpigotAtomiImpl(Path path, AtomiOptionRegistry optionRegistry, Plugin plugin) {
         super(path, optionRegistry, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
@@ -68,9 +68,9 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
         boolean success = super.removeGroup(name);
         if (success) {
             // Cancel group update task if the group is removed
-            BukkitTask task = groupUpdateTasks.remove(name);
+            EntityUpdateTask task = groupUpdateTasks.remove(name);
             if (task != null)
-                task.cancel();
+                task.bukkitTask.cancel();
         }
         return success;
     }
@@ -80,11 +80,19 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
         // We want to send the event and save the user only once next tick
         // This fixes many issues, like recursion when modifying the user within the event,
         // and speeds up user updates by saving only once in a single tick
-        userUpdateTasks.computeIfAbsent(user.uuid(), uuid -> Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.getPluginManager().callEvent(new AtomiUserUpdateEvent(user));
-            super.updateUser(user, save);
-            userUpdateTasks.remove(uuid);
-        }));
+        EntityUpdateTask task = userUpdateTasks.computeIfAbsent(user.uuid(), uuid -> {
+            BukkitTask bukkitTask = Bukkit.getScheduler().runTask(plugin, () -> {
+                EntityUpdateTask thenTask = userUpdateTasks.get(uuid);
+                Bukkit.getPluginManager().callEvent(new AtomiUserUpdateEvent(user));
+                super.updateUser(user, thenTask.save);
+                userUpdateTasks.remove(uuid);
+            });
+            return new EntityUpdateTask(bukkitTask);
+        });
+
+        if (save) {
+            task.save = true;
+        }
     }
 
     @Override
@@ -92,11 +100,19 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
         // We want to send the event and save the group only once next tick
         // This fixes many issues, like recursion when modifying the group within the event,
         // and speeds up group updates by saving only once in a single tick
-        groupUpdateTasks.computeIfAbsent(group.name(), name -> Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.getPluginManager().callEvent(new AtomiGroupUpdateEvent(group));
-            super.updateGroup(group, save);
-            groupUpdateTasks.remove(name);
-        }));
+        EntityUpdateTask task = groupUpdateTasks.computeIfAbsent(group.name(), name -> {
+            BukkitTask bukkitTask = Bukkit.getScheduler().runTask(plugin, () -> {
+                EntityUpdateTask thenTask = groupUpdateTasks.get(name);
+                Bukkit.getPluginManager().callEvent(new AtomiGroupUpdateEvent(group));
+                super.updateGroup(group, thenTask.save);
+                groupUpdateTasks.remove(name);
+            });
+            return new EntityUpdateTask(bukkitTask);
+        });
+
+        if (save) {
+            task.save = true;
+        }
     }
 
     private AtomiPermissible createPermissible(@NotNull Player player, PermissibleBase previousPermissible) {
@@ -111,5 +127,14 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     public void uninitiatePlayer(@NotNull Player player) {
         AtomiPermissibleInjector.uninject(player);
         unloadUser(player.getUniqueId()); // Unload user from cache
+    }
+
+    protected static class EntityUpdateTask {
+        protected final BukkitTask bukkitTask;
+        protected volatile boolean save = false;
+
+        protected EntityUpdateTask(BukkitTask bukkitTask) {
+            this.bukkitTask = bukkitTask;
+        }
     }
 }
