@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.brigadier)
     api(project(":atomi-core"))
 }
 

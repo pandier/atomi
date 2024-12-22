@@ -24,7 +24,7 @@ public class AtomiGroupImpl extends AbstractAtomiEntity implements AtomiGroup {
     }
 
     protected void update() {
-        atomi.updateGroup(this);
+        atomi.updateGroup(this, true);
     }
 
     @Override

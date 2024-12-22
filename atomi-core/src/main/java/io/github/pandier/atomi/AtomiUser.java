@@ -30,6 +30,8 @@ public interface AtomiUser extends AtomiEntity {
 
     void removeContext(@NotNull AtomiContext context);
 
+    boolean hasContext(@NotNull AtomiContext context);
+
     @NotNull
     Set<AtomiContext> contexts();
 }

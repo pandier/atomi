@@ -113,7 +113,7 @@ public class AtomiPermissionDescription implements PermissionDescription {
         public PermissionDescription.Builder id(String id) {
             Objects.requireNonNull(id, "id");
             if (!PERMISSION_PATTERN.matcher(id).matches())
-                throw new IllegalArgumentException("Permission '" + id + "' does not match the allowed format '" + PERMISSION_PATTERN.pattern() + "'");
+                throw new IllegalArgumentException("Permission '" + id + "' does not match the allowed format " + PERMISSION_PATTERN.pattern());
             this.id = id;
             return this;
         }

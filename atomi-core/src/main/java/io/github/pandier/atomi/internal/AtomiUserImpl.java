@@ -17,11 +17,11 @@ public class AtomiUserImpl extends AbstractAtomiEntity implements AtomiUser {
         super(atomi);
         this.uuid = uuid;
         this.data = data;
-        this.data.setUpdateCallback((x) -> update());
+        this.data.setUpdateCallback((x) -> update(true));
     }
 
-    protected void update() {
-        atomi.updateUser(this);
+    protected void update(boolean save) {
+        atomi.updateUser(this, save);
     }
 
     @Override
@@ -44,12 +44,21 @@ public class AtomiUserImpl extends AbstractAtomiEntity implements AtomiUser {
         synchronized (contexts) {
             contexts.add(context);
         }
+        update(false);
     }
 
     @Override
     public void removeContext(@NotNull AtomiContext context) {
         synchronized (contexts) {
             contexts.remove(context);
+        }
+        update(false);
+    }
+
+    @Override
+    public boolean hasContext(@NotNull AtomiContext context) {
+        synchronized (contexts) {
+            return contexts.contains(context);
         }
     }
 
