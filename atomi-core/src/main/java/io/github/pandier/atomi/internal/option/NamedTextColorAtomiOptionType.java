@@ -1,7 +1,6 @@
 package io.github.pandier.atomi.internal.option;
 
 import com.google.gson.JsonElement;
-import io.github.pandier.atomi.AtomiOptionType;
 import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.NamedTextColorAtomiArgument;
 import net.kyori.adventure.text.Component;

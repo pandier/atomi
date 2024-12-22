@@ -2,7 +2,9 @@ package io.github.pandier.atomi.internal;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.github.pandier.atomi.*;
+import io.github.pandier.atomi.Atomi;
+import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.internal.factory.GroupFactory;
 import io.github.pandier.atomi.internal.factory.UserFactory;
 import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;

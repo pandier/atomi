@@ -1,7 +1,6 @@
 package io.github.pandier.atomi.internal.command;
 
 import io.github.pandier.atomi.*;
-import io.github.pandier.atomi.AtomiOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;

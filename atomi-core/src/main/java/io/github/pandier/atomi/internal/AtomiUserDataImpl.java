@@ -1,8 +1,8 @@
 package io.github.pandier.atomi.internal;
 
 import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.AtomiUserData;
 import io.github.pandier.atomi.AtomiOption;
+import io.github.pandier.atomi.AtomiUserData;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

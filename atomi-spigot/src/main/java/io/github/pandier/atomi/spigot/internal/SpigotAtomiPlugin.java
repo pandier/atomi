@@ -2,8 +2,8 @@ package io.github.pandier.atomi.spigot.internal;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.AtomiOption;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.spigot.internal.command.AtomiCommands;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
