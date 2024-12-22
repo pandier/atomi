@@ -9,7 +9,10 @@ import io.github.pandier.atomi.internal.command.AbstractCommand;
 import io.github.pandier.atomi.internal.command.GroupCommand;
 import io.github.pandier.atomi.internal.command.UserCommand;
 import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
+import io.github.pandier.atomi.sponge.internal.command.brigadier.ComponentMessage;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
@@ -46,12 +49,24 @@ public class SpongeAtomiCommand implements Command.Raw {
 
     @Override
     public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
+        String command = arguments.remaining();
         try {
-            int result = dispatcher.execute(arguments.remaining(), cause);
+            int result = dispatcher.execute(command, cause);
             return CommandResult.builder().result(result).build();
         } catch (CommandSyntaxException e) {
-            // TODO
-            throw new CommandException(Component.text(e.getMessage()), e);
+            Component message = e.getRawMessage() instanceof ComponentMessage(Component component) ? component : Component.text(e.getRawMessage().getString());
+            if (e.getInput() != null && e.getCursor() >= 0) {
+                int cursor = Math.min(e.getInput().length(), e.getCursor());
+                Component mutableText = Component.text("\n").color(NamedTextColor.GRAY);
+                if (cursor > 10)
+                    mutableText = mutableText.append(Component.text("..."));
+                mutableText = mutableText.append(Component.text(e.getInput().substring(Math.max(0, cursor - 10), cursor)));
+                if (cursor < e.getInput().length())
+                    mutableText = mutableText.append(Component.text(e.getInput().substring(cursor)).color(NamedTextColor.RED).decorate(TextDecoration.UNDERLINED));
+                mutableText = mutableText.append(Component.translatable("command.context.here").color(NamedTextColor.RED).decorate(TextDecoration.ITALIC));
+                message = message.append(mutableText);
+            }
+            throw new CommandException(message, e);
         }
     }
 
