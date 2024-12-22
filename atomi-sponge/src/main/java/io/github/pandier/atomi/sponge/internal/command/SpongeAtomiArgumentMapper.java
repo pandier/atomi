@@ -37,7 +37,7 @@ public class SpongeAtomiArgumentMapper {
             case STRING -> CommandTreeNodeTypes.STRING.get().createNode();
         });
         registerWithType(BooleanAtomiArgument.class, x -> BoolArgumentType.bool(),x -> CommandTreeNodeTypes.BOOL.get().createNode());
-        registerWithType(UserAtomiArgument.class, x -> AtomiUserArgumentType.atomiUser(), x -> CommandTreeNodeTypes.GAME_PROFILE.get().createNode());
+        registerWithType(UserAtomiArgument.class, x -> AtomiUserArgumentType.atomiUser(), x -> CommandTreeNodeTypes.STRING.get().createNode().word().customCompletions());
         registerWithType(GroupAtomiArgument.class, x -> AtomiGroupArgumentType.atomiGroup(), x -> CommandTreeNodeTypes.STRING.get().createNode().word().customCompletions());
     }
 
