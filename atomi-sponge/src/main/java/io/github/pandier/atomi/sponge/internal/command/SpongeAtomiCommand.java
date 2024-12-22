@@ -71,7 +71,7 @@ public class SpongeAtomiCommand implements Command.Raw {
     }
 
     @Override
-    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
+    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) {
         ParseResults<CommandCause> parseResults = dispatcher.parse(arguments.remaining(), cause);
         Suggestions suggestions = dispatcher.getCompletionSuggestions(parseResults).join();
         return suggestions.getList().stream().map(x -> CommandCompletion.of(x.getText())).toList();
