@@ -1,16 +1,17 @@
 package io.github.pandier.atomi.internal.command;
 
 import io.github.pandier.atomi.AtomiEntity;
+import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.internal.AbstractAtomi;
-import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.BooleanAtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
-import io.github.pandier.atomi.internal.command.argument.StringAtomiArgument;
+import io.github.pandier.atomi.internal.command.argument.*;
+import io.github.pandier.atomi.internal.option.ArgumentableAtomiOptionType;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
     protected final String type;
     protected final List<LiteralAtomiArgument> subCommands = new ArrayList<>();
 
-    protected AbstractEntityCommand(@NotNull String name, @NotNull String type) {
+    protected AbstractEntityCommand(@NotNull String name, @NotNull String type, @NotNull AtomiOptionRegistry optionRegistry) {
         this.name = name;
         this.type = type;
 
@@ -34,6 +35,23 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
                         .then(new LiteralAtomiArgument("unset")
                                 .executes(ctx ->
                                         executePermission(ctx, getEntity(ctx), ctx.get("permission", String.class), Tristate.UNSET)))));
+        entitySubCommand("option", x -> optionRegistry.forEach(option -> {
+            AtomiArgument<?> argument = createOptionArgument(option);
+            if (argument != null)
+                x.then(argument);
+        }));
+    }
+
+    @Nullable
+    protected <T> AtomiArgument<?> createOptionArgument(AtomiOption<T> option) {
+        if (!(option.type() instanceof ArgumentableAtomiOptionType<T> argumentableType))
+            return null;
+        return new LiteralAtomiArgument(option.name())
+                .then(new LiteralAtomiArgument("set")
+                        .then(argumentableType.createArgument("value")
+                                .executes((ctx) -> executeSetOption(ctx, getEntity(ctx), option, ctx.get("value", option.type().classType())))))
+                .then(new LiteralAtomiArgument("unset")
+                        .executes(ctx -> executeSetOption(ctx, getEntity(ctx), option, null)));
     }
 
     protected boolean executePermission(AtomiCommandContext ctx, E entity, String permission, Tristate value) {
@@ -54,6 +72,26 @@ public abstract class AbstractEntityCommand<E extends AtomiEntity> extends Abstr
         } else {
             response = response.append(Component.text(" set to "))
                     .append(formatTristate(value));
+        }
+
+        ctx.sendMessage(response);
+        return true;
+    }
+
+    protected <T> boolean executeSetOption(AtomiCommandContext ctx, E entity, AtomiOption<T> option, @Nullable T value) {
+        entity.setOption(option, value);
+
+        Component response = Component.text("Option ").color(NamedTextColor.GRAY)
+                .append(formatOption(option.name()))
+                .append(Component.text(" for " + type + " "))
+                .append(display(entity));
+
+        if (value == null) {
+            response = response.append(Component.text(" unset"));
+        } else {
+            response = response.append(Component.text(" set to "))
+                    .append(Component.empty().color(NamedTextColor.WHITE)
+                            .append(option.type().displayText(value)));
         }
 
         ctx.sendMessage(response);

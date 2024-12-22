@@ -6,35 +6,32 @@ import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.internal.command.AbstractCommand;
 import io.github.pandier.atomi.internal.command.GroupCommand;
 import io.github.pandier.atomi.internal.command.UserCommand;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @ApiStatus.Internal
 public class AtomiCommands {
-    private static final List<AbstractCommand> COMMANDS = new ArrayList<>();
-
-    static {
-        COMMANDS.add(new UserCommand(AtomiCommands::userDisplayName));
-        COMMANDS.add(new GroupCommand());
-    }
 
     @Nullable
     private static String userDisplayName(AtomiUser user) {
         return Bukkit.getOfflinePlayer(user.uuid()).getName();
     }
 
-    public static void register() {
+    private static void registerWithCommands(AbstractCommand... commands) {
         CommandTree atomi = new CommandTree("atomi")
                 .withPermission("atomi.command");
-
-        for (AbstractCommand command : COMMANDS)
-            atomi.then(SpigotAtomiCommandMapper.map(command.create()));
-
+        for (AbstractCommand command : commands)
+            atomi.then(SpigotAtomiArgumentMapper.map(command.create()));
         atomi.register();
+    }
+
+    public static void register(AtomiOptionRegistry optionRegistry) {
+        registerWithCommands(
+                new UserCommand(optionRegistry, AtomiCommands::userDisplayName),
+                new GroupCommand(optionRegistry)
+        );
     }
 
     public static void unregister() {

@@ -4,6 +4,7 @@ import io.github.pandier.atomi.AtomiGroup;
 import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.GroupAtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.StringAtomiArgument;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
@@ -12,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.Internal
 public class GroupCommand extends AbstractEntityCommand<AtomiGroup> {
 
-    public GroupCommand() {
-        super("group", "group");
+    public GroupCommand(AtomiOptionRegistry optionRegistry) {
+        super("group", "group", optionRegistry);
 
         subCommand("create", x -> x
                 .then(new StringAtomiArgument("name", StringAtomiArgument.Type.WORD)

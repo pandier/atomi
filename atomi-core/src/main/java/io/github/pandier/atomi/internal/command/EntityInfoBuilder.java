@@ -92,7 +92,7 @@ public class EntityInfoBuilder {
     public <T> void optionEntry(@Nullable String source, AtomiOption<T> option, @Nullable Object value) {
         if (value == null || optionKeys.contains(option.name())) return;
         optionKeys.add(option.name());
-        entry(source, option.name(), AbstractCommand::formatMetadata, option.type().displayText(option.type().classType().cast(value)));
+        entry(source, option.name(), AbstractCommand::formatOption, option.type().displayText(option.type().classType().cast(value)));
     }
 
     public void permissions(AtomiEntity entity) {

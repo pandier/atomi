@@ -9,6 +9,7 @@ import io.github.pandier.atomi.internal.command.AbstractCommand;
 import io.github.pandier.atomi.internal.command.GroupCommand;
 import io.github.pandier.atomi.internal.command.UserCommand;
 import io.github.pandier.atomi.internal.command.argument.LiteralAtomiArgument;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import io.github.pandier.atomi.sponge.internal.command.brigadier.ComponentMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -34,9 +35,9 @@ public class SpongeAtomiCommand implements Command.Raw {
     private final CommandDispatcher<CommandCause> dispatcher = new CommandDispatcher<>();
     private final CommandTreeNode.Root completionTree = CommandTreeNode.root().requires(this::canExecute);
 
-    public SpongeAtomiCommand() {
-        register(new UserCommand(user -> Sponge.server().gameProfileManager().cache().findById(user.uuid()).flatMap(GameProfile::name).orElse(null)));
-        register(new GroupCommand());
+    public SpongeAtomiCommand(AtomiOptionRegistry optionRegistry) {
+        register(new UserCommand(optionRegistry, user -> Sponge.server().gameProfileManager().cache().findById(user.uuid()).flatMap(GameProfile::name).orElse(null)));
+        register(new GroupCommand(optionRegistry));
     }
 
     @SuppressWarnings("unchecked")

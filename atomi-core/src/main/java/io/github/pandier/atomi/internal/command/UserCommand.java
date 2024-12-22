@@ -5,6 +5,7 @@ import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.internal.command.argument.AtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.GroupAtomiArgument;
 import io.github.pandier.atomi.internal.command.argument.UserAtomiArgument;
+import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
@@ -17,8 +18,8 @@ import java.util.function.Function;
 public class UserCommand extends AbstractEntityCommand<AtomiUser> {
     private final Function<AtomiUser, @Nullable String> displayNameProvider;
 
-    public UserCommand(@NotNull Function<AtomiUser, @Nullable String> displayNameProvider) {
-        super("user", "user");
+    public UserCommand(@NotNull AtomiOptionRegistry optionRegistry,  @NotNull Function<AtomiUser, @Nullable String> displayNameProvider) {
+        super("user", "user", optionRegistry);
         this.displayNameProvider = displayNameProvider;
 
         entitySubCommand("group", x -> x

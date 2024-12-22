@@ -24,7 +24,7 @@ public abstract class AbstractCommand {
     }
 
     @NotNull
-    public static Component formatMetadata(@NotNull String permission) {
+    public static Component formatOption(@NotNull String permission) {
         return Component.text(permission).color(NamedTextColor.LIGHT_PURPLE);
     }
 

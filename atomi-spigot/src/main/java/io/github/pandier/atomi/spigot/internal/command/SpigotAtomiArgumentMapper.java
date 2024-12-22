@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class SpigotAtomiCommandMapper {
+public class SpigotAtomiArgumentMapper {
     private final AtomiArgument<?> atomiArgument;
     private final Map<String, Function<Object, Object>> argumentMappers;
 
-    private SpigotAtomiCommandMapper(AtomiArgument<?> atomiArgument, Map<String, Function<Object, Object>> argumentMappers) {
+    private SpigotAtomiArgumentMapper(AtomiArgument<?> atomiArgument, Map<String, Function<Object, Object>> argumentMappers) {
         this.atomiArgument = atomiArgument;
         this.argumentMappers = argumentMappers;
     }
@@ -33,7 +33,10 @@ public class SpigotAtomiCommandMapper {
                 case STRING -> new TextArgument(string.name());
                 case GREEDY -> new GreedyStringArgument(string.name());
             };
+            case IntegerAtomiArgument integer -> new IntegerArgument(integer.name());
             case BooleanAtomiArgument bool -> new BooleanArgument(bool.name());
+            case ComponentAtomiArgument textComponent -> new AdventureChatComponentArgument(textComponent.name());
+            case NamedTextColorAtomiArgument namedTextColor -> new AdventureChatColorArgument(namedTextColor.name());
             case GroupAtomiArgument group -> new StringArgument(group.name())
                     .includeSuggestions(ArgumentSuggestions.strings(x -> SpigotAtomi.get().groupNames().toArray(new String[0])));
             case UserAtomiArgument user -> new OfflinePlayerArgument(user.name());
@@ -85,7 +88,7 @@ public class SpigotAtomiCommandMapper {
         Argument<?> argument = createArgument();
 
         for (AtomiArgument<?> child : atomiArgument.children()) {
-            SpigotAtomiCommandMapper mapper = new SpigotAtomiCommandMapper(child, new HashMap<>(argumentMappers));
+            SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(child, new HashMap<>(argumentMappers));
             argument.then(mapper.map());
         }
 
@@ -98,7 +101,7 @@ public class SpigotAtomiCommandMapper {
 
     @NotNull
     public static Argument<?> map(@NotNull AtomiArgument<?> atomiArgument) {
-        SpigotAtomiCommandMapper mapper = new SpigotAtomiCommandMapper(atomiArgument, new HashMap<>());
+        SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(atomiArgument, new HashMap<>());
         return mapper.map();
     }
 }

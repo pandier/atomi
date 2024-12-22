@@ -19,7 +19,7 @@ import java.nio.file.Path;
 @Plugin("atomi")
 @ApiStatus.Internal
 public class SpongeAtomiPlugin {
-    public static SpongeAtomi atomi;
+    public static SpongeAtomiImpl atomi;
 
     private final PluginContainer pluginContainer;
     private final Logger logger;
@@ -43,6 +43,6 @@ public class SpongeAtomiPlugin {
 
     @Listener
     private void registerCommands(RegisterCommandEvent<Command.Raw> event) {
-        event.register(pluginContainer, new SpongeAtomiCommand(), "atomi");
+        event.register(pluginContainer, new SpongeAtomiCommand(atomi.optionRegistry()), "atomi");
     }
 }
