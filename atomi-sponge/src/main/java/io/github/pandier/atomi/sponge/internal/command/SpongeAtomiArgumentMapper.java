@@ -1,9 +1,6 @@
 package io.github.pandier.atomi.sponge.internal.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -40,6 +37,9 @@ public class SpongeAtomiArgumentMapper {
             case STRING -> CommandTreeNodeTypes.STRING.get().createNode();
         });
         registerWithType(IntegerAtomiArgument.class, x -> IntegerArgumentType.integer(), x -> CommandTreeNodeTypes.INTEGER.get().createNode());
+        registerWithType(LongAtomiArgument.class, x -> LongArgumentType.longArg(), x -> CommandTreeNodeTypes.LONG.get().createNode());
+        registerWithType(FloatAtomiArgument.class, x -> FloatArgumentType.floatArg(), x -> CommandTreeNodeTypes.FLOAT.get().createNode());
+        registerWithType(DoubleAtomiArgument.class, x -> DoubleArgumentType.doubleArg(), x -> CommandTreeNodeTypes.DOUBLE.get().createNode());
         registerWithType(BooleanAtomiArgument.class, x -> BoolArgumentType.bool(),x -> CommandTreeNodeTypes.BOOL.get().createNode());
         registerWithType(ComponentAtomiArgument.class, x -> ComponentArgumentType.component(), x -> CommandTreeNodeTypes.COMPONENT.get().createNode());
         registerWithType(NamedTextColorAtomiArgument.class, x -> NamedTextColorArgumentType.namedTextColor(), x -> CommandTreeNodeTypes.COLOR.get().createNode());

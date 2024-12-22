@@ -20,7 +20,6 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
 import org.spongepowered.api.command.registrar.tree.CommandTreeNode;
 import org.spongepowered.api.profile.GameProfile;
@@ -49,13 +48,14 @@ public class SpongeAtomiCommand implements Command.Raw {
     }
 
     @Override
-    public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
+    public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) {
         String command = arguments.remaining();
         try {
             int result = dispatcher.execute(command, cause);
             return CommandResult.builder().result(result).build();
         } catch (CommandSyntaxException e) {
-            Component message = e.getRawMessage() instanceof ComponentMessage(Component component) ? component : Component.text(e.getRawMessage().getString());
+            Component message = Component.empty().color(NamedTextColor.RED)
+                    .append(e.getRawMessage() instanceof ComponentMessage(Component component) ? component : Component.text(e.getRawMessage().getString()));
             if (e.getInput() != null && e.getCursor() >= 0) {
                 int cursor = Math.min(e.getInput().length(), e.getCursor());
                 Component mutableText = Component.text("\n").color(NamedTextColor.GRAY);
@@ -67,7 +67,8 @@ public class SpongeAtomiCommand implements Command.Raw {
                 mutableText = mutableText.append(Component.translatable("command.context.here").color(NamedTextColor.RED).decorate(TextDecoration.ITALIC));
                 message = message.append(mutableText);
             }
-            throw new CommandException(message, e);
+            cause.sendMessage(message);
+            return CommandResult.error(message);
         }
     }
 

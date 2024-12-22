@@ -34,6 +34,9 @@ public class SpigotAtomiArgumentMapper {
                 case GREEDY -> new GreedyStringArgument(string.name());
             };
             case IntegerAtomiArgument integer -> new IntegerArgument(integer.name());
+            case LongAtomiArgument longArg -> new LongArgument(longArg.name());
+            case FloatAtomiArgument floatArg -> new FloatArgument(floatArg.name());
+            case DoubleAtomiArgument doubleArg -> new DoubleArgument(doubleArg.name());
             case BooleanAtomiArgument bool -> new BooleanArgument(bool.name());
             case ComponentAtomiArgument textComponent -> new AdventureChatComponentArgument(textComponent.name());
             case NamedTextColorAtomiArgument namedTextColor -> new AdventureChatColorArgument(namedTextColor.name());

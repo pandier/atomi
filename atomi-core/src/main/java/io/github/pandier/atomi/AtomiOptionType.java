@@ -1,10 +1,7 @@
 package io.github.pandier.atomi;
 
 import com.google.gson.JsonElement;
-import io.github.pandier.atomi.internal.option.ComponentAtomiOptionType;
-import io.github.pandier.atomi.internal.option.IntegerAtomiOptionType;
-import io.github.pandier.atomi.internal.option.NamedTextColorAtomiOptionType;
-import io.github.pandier.atomi.internal.option.StringAtomiOptionType;
+import io.github.pandier.atomi.internal.option.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.ApiStatus;
@@ -14,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
 public interface AtomiOptionType<T> {
     AtomiOptionType<String> STRING = new StringAtomiOptionType();
     AtomiOptionType<Integer> INTEGER = new IntegerAtomiOptionType();
+    AtomiOptionType<Long> LONG = new LongAtomiOptionType();
+    AtomiOptionType<Float> FLOAT = new FloatAtomiOptionType();
+    AtomiOptionType<Double> DOUBLE = new DoubleAtomiOptionType();
     AtomiOptionType<Component> COMPONENT = new ComponentAtomiOptionType();
     AtomiOptionType<NamedTextColor> NAMED_TEXT_COLOR = new NamedTextColorAtomiOptionType();
 
