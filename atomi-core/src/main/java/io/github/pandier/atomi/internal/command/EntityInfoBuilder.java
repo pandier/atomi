@@ -1,9 +1,8 @@
-package io.github.pandier.atomi.spigot.internal.command.info;
+package io.github.pandier.atomi.internal.command;
 
 import io.github.pandier.atomi.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 @ApiStatus.Internal
-public class InfoBuilder {
+public class EntityInfoBuilder {
     private Component component = Component.empty();
     private final Set<String> permissionKeys = new HashSet<>();
     private final Set<String> metadataKeys = new HashSet<>();
@@ -31,8 +30,9 @@ public class InfoBuilder {
 
     @NotNull
     public static Component player(@Nullable String name, @NotNull AtomiUser user) {
-        InfoBuilder builder = new InfoBuilder();
-        builder.append(Component.text(String.valueOf(name)))
+        EntityInfoBuilder builder = new EntityInfoBuilder();
+
+        builder.append(Component.text(name != null ? name : "Unknown").color(name != null ? null : NamedTextColor.DARK_GRAY))
                 .append(Component.text(" (" + user.uuid() + ")").color(NamedTextColor.GRAY));
 
         builder.title("Group");
@@ -53,7 +53,7 @@ public class InfoBuilder {
 
     @NotNull
     public static Component group(@NotNull AtomiGroup group) {
-        InfoBuilder builder = new InfoBuilder();
+        EntityInfoBuilder builder = new EntityInfoBuilder();
         builder.append(Component.text(group.name()));
         builder.metadata(group);
         builder.permissions(group);
@@ -92,7 +92,7 @@ public class InfoBuilder {
     public void metadataEntry(@Nullable String source, String key, @Nullable Component value) {
         if (value == null || metadataKeys.contains(key)) return;
         metadataKeys.add(key);
-        entry(source, key, NamedTextColor.LIGHT_PURPLE, value);
+        entry(source, key, AbstractCommand::formatMetadata, value);
     }
 
     public void permissions(AtomiEntity entity) {
@@ -112,20 +112,20 @@ public class InfoBuilder {
     public void permissionEntry(@Nullable String source, String key, boolean value) {
         if (permissionKeys.contains(key)) return;
         permissionKeys.add(key);
-        entry(source, key, NamedTextColor.AQUA, Component.text(value).color(value ? NamedTextColor.GREEN : NamedTextColor.RED));
+        entry(source, key, AbstractCommand::formatPermission, AbstractCommand.formatBoolean(value));
     }
 
-    public void entry(@Nullable String source, String key, TextColor color, Component value) {
+    public void entry(@Nullable String source, String key, Function<String, Component> keyFormatter, Component value) {
         append(Component.text("\n    "));
         append(Component.text("- ").color(NamedTextColor.DARK_GRAY));
         if (source != null)
             append(Component.text(source + " ").color(NamedTextColor.YELLOW));
-        append(Component.text(key).color(color));
+        append(keyFormatter.apply(key));
         append(Component.text(": ").color(NamedTextColor.GRAY));
         append(value);
     }
 
-    public InfoBuilder append(Component component) {
+    public EntityInfoBuilder append(Component component) {
         this.component = this.component.append(component);
         return this;
     }

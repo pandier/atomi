@@ -1,6 +1,7 @@
 package io.github.pandier.atomi.sponge.internal;
 
 import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.internal.AbstractAtomi;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -27,7 +28,7 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public IllegalArgumentException identifierValidityException(String identifier) {
-        return new IllegalArgumentException("Group name '" + identifier + "' contains illegal characters");
+        return new IllegalArgumentException("Group name '" + identifier + "' does not match the allowed format " + AbstractAtomi.GROUP_NAME_PATTERN.pattern());
     }
 
     @Override

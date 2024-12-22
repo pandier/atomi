@@ -2,12 +2,16 @@ package io.github.pandier.atomi.sponge.internal;
 
 import com.google.inject.Inject;
 import io.github.pandier.atomi.sponge.SpongeAtomi;
+import io.github.pandier.atomi.sponge.internal.command.SpongeAtomiCommand;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.nio.file.Path;
@@ -17,11 +21,13 @@ import java.nio.file.Path;
 public class SpongeAtomiPlugin {
     public static SpongeAtomi atomi;
 
+    private final PluginContainer pluginContainer;
     private final Logger logger;
 
     @Inject
-    public SpongeAtomiPlugin(Logger logger, @ConfigDir(sharedRoot = false) Path configPath) {
+    public SpongeAtomiPlugin(Logger logger, PluginContainer pluginContainer, @ConfigDir(sharedRoot = false) Path configPath) {
         this.logger = logger;
+        this.pluginContainer = pluginContainer;
         atomi = new SpongeAtomiImpl(configPath, logger);
     }
 
@@ -33,5 +39,10 @@ public class SpongeAtomiPlugin {
         } else {
             logger.error("Could not provide permission service, because Atomi was not loaded yet");
         }
+    }
+
+    @Listener
+    private void registerCommands(RegisterCommandEvent<Command.Raw> event) {
+        event.register(pluginContainer, new SpongeAtomiCommand(), "atomi");
     }
 }

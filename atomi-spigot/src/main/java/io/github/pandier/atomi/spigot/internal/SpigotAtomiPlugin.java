@@ -2,7 +2,7 @@ package io.github.pandier.atomi.spigot.internal;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import io.github.pandier.atomi.spigot.internal.command.Commands;
+import io.github.pandier.atomi.spigot.internal.command.AtomiCommands;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,7 +30,7 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
-        Commands.register();
+        AtomiCommands.register();
 
         // Initiate all players in case of a reload
         for (Player player : getServer().getOnlinePlayers()) {
@@ -40,7 +40,7 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        Commands.unregister();
+        AtomiCommands.unregister();
         CommandAPI.onDisable();
 
         for (Player player : getServer().getOnlinePlayers()) {
