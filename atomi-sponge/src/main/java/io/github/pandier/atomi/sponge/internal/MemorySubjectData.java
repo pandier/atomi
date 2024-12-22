@@ -68,22 +68,28 @@ public class MemorySubjectData implements SubjectData {
 
     @Override
     public Tristate fallbackPermissionValue(Set<Context> contexts) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!contexts.isEmpty())
+            return Tristate.UNDEFINED;
+        return TristateUtil.spongeTristate(this.permissions.getRoot());
     }
 
     @Override
     public Map<Set<Context>, Tristate> allFallbackPermissionValues() {
-        throw new UnsupportedOperationException(); // TODO
+        return Map.of(Set.of(), TristateUtil.spongeTristate(this.permissions.getRoot()));
     }
 
     @Override
     public CompletableFuture<Boolean> setFallbackPermissionValue(Set<Context> contexts, Tristate fallback) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!contexts.isEmpty())
+            return CompletableFuture.completedFuture(false);
+        this.permissions.setRoot(TristateUtil.atomiTristate(fallback));
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
     public CompletableFuture<Boolean> clearFallbackPermissionValues() {
-        throw new UnsupportedOperationException(); // TODO
+        this.permissions.setRoot(io.github.pandier.atomi.Tristate.UNSET);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

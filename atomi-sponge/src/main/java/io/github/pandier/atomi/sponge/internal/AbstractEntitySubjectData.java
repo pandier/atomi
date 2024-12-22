@@ -53,24 +53,28 @@ public abstract class AbstractEntitySubjectData implements SubjectData {
 
     @Override
     public Tristate fallbackPermissionValue(Set<Context> contexts) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!contexts.isEmpty())
+            return Tristate.UNDEFINED;
+        return TristateUtil.spongeTristate(subject().entity().data().permission("*"));
     }
 
     @Override
     public Map<Set<Context>, Tristate> allFallbackPermissionValues() {
-        throw new UnsupportedOperationException(); // TODO
+        return Map.of(Set.of(), TristateUtil.spongeTristate(subject().entity().data().permission("*")));
     }
 
     @Override
     public CompletableFuture<Boolean> setFallbackPermissionValue(Set<Context> contexts, Tristate fallback) {
         if (!contexts.isEmpty())
             return CompletableFuture.completedFuture(false);
-        throw new UnsupportedOperationException(); // TODO
+        subject().entity().data().setPermission("*", TristateUtil.atomiTristate(fallback));
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
     public CompletableFuture<Boolean> clearFallbackPermissionValues() {
-        throw new UnsupportedOperationException(); // TODO
+        subject().entity().data().setPermission("*", io.github.pandier.atomi.Tristate.UNSET);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
