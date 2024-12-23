@@ -13,18 +13,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class MemorySubjectData implements SubjectData {
     private final PermissionTree permissions = new PermissionTree();
-    private final Subject subject;
+    private final Supplier<Subject> subjectSuppplier;
 
-    public MemorySubjectData(Subject subject) {
-        this.subject = subject;
+    public MemorySubjectData(Supplier<Subject> subjectSupplier) {
+        this.subjectSuppplier = subjectSupplier;
     }
 
     @Override
     public Subject subject() {
-        return subject;
+        return subjectSuppplier.get();
     }
 
     @Override

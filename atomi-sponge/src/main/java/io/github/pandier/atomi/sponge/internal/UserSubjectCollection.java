@@ -1,5 +1,6 @@
 package io.github.pandier.atomi.sponge.internal;
 
+import io.github.pandier.atomi.AtomiUser;
 import org.jetbrains.annotations.ApiStatus;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -12,6 +13,7 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public class UserSubjectCollection extends AbstractSubjectCollection {
+    private final Map<String, MemorySubjectData> transientSubjectDatas = new HashMap<>();
 
     public UserSubjectCollection(AtomiPermissionService service) {
         super(PermissionService.SUBJECTS_USER, service);
@@ -39,16 +41,22 @@ public class UserSubjectCollection extends AbstractSubjectCollection {
         return new IllegalArgumentException("Provided identifier must be a valid UUID, was " + identifier);
     }
 
+    protected UserSubject createSubject(AtomiUser user) {
+        String identifier = user.uuid().toString();
+        MemorySubjectData transientSubjectData = transientSubjectDatas.computeIfAbsent(identifier, x -> new MemorySubjectData(() -> subject(identifier).orElseThrow()));
+        return new UserSubject(user, transientSubjectData, this);
+    }
+
     @Override
     public Subject loadSubjectInternal(String identifier) {
-        return new UserSubject(atomi().user(identifierToUuidOrThrow(identifier)), this);
+        return createSubject(atomi().user(identifierToUuidOrThrow(identifier)));
     }
 
     @Override
     public Optional<? extends Subject> subject(String identifier) {
         return identifierToUuid(identifier)
                 .flatMap(atomi()::userFromCache)
-                .map(x -> new UserSubject(x, this));
+                .map(this::createSubject);
     }
 
     @Override
@@ -60,36 +68,43 @@ public class UserSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public Collection<? extends Subject> loadedSubjects() {
-        throw new UnsupportedOperationException(); // TODO
+        return atomi().cachedUsers().stream().map(this::createSubject).toList();
     }
 
     @Override
     public CompletableFuture<? extends Set<String>> allIdentifiers() {
-        throw new UnsupportedOperationException(); // TODO
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying identifiers of all users it not yet supported"));
     }
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission it not yet supported"));
     }
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission, Cause cause) {
-        throw new UnsupportedOperationException(); // TODO
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission it not yet supported"));
     }
 
     @Override
     public Map<? extends Subject, Boolean> loadedWithPermission(String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        Map<Subject, Boolean> result = new HashMap<>();
+        for (AtomiUser user : atomi().cachedUsers()) {
+            io.github.pandier.atomi.Tristate value = user.permission(permission);
+            if (value == io.github.pandier.atomi.Tristate.UNSET)
+                return result;
+            result.put(createSubject(user), value.asBoolean());
+        }
+        return result;
     }
 
     @Override
     public Map<? extends Subject, Boolean> loadedWithPermission(String permission, Cause cause) {
-        throw new UnsupportedOperationException(); // TODO
+        return loadedWithPermission(permission);
     }
 
     @Override
     public void suggestUnload(String identifier) {
-        // TODO
+        atomi().unloadUser(identifierToUuidOrThrow(identifier));
     }
 }

@@ -28,7 +28,6 @@ public class AtomiPermissionService implements PermissionService {
         this.collectionMap.put(groupSubjectCollection.identifier(), groupSubjectCollection);
         this.collectionMap.put(defaultsCollection.identifier(), defaultsCollection);
         this.collectionMap.put(roleTemplateCollection.identifier(), roleTemplateCollection);
-        // TODO: Different default permission values for system and command blocks
         this.collectionMap.put(PermissionService.SUBJECTS_SYSTEM, new FactorySubjectCollection(PermissionService.SUBJECTS_SYSTEM, this));
         this.collectionMap.put(PermissionService.SUBJECTS_COMMAND_BLOCK, new FactorySubjectCollection(PermissionService.SUBJECTS_COMMAND_BLOCK, this));
     }

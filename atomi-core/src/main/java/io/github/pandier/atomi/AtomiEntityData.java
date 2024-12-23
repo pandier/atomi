@@ -12,6 +12,8 @@ public interface AtomiEntityData {
 
     void setPermission(@NotNull String permission, @NotNull Tristate value);
 
+    void clearPermissions();
+
     @NotNull
     Map<String, Boolean> permissions();
 
@@ -19,6 +21,8 @@ public interface AtomiEntityData {
     <T> Optional<T> option(@NotNull AtomiOption<T> option);
 
     <T> void setOption(@NotNull AtomiOption<T> option, @Nullable T value);
+
+    void clearOptions();
 
     @NotNull
     Map<AtomiOption<?>, Object> options();

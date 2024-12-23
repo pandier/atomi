@@ -47,6 +47,12 @@ public class AtomiEntityDataImpl implements AtomiEntityData {
     }
 
     @Override
+    public void clearPermissions() {
+        permissions.clear();
+        updateCallback.accept(this);
+    }
+
+    @Override
     public @NotNull Map<String, Boolean> permissions() {
         return permissions.asMap();
     }
@@ -67,6 +73,11 @@ public class AtomiEntityDataImpl implements AtomiEntityData {
             options.put(option, value);
         }
         updateCallback.accept(this);
+    }
+
+    @Override
+    public void clearOptions() {
+        options.clear();
     }
 
     @Override

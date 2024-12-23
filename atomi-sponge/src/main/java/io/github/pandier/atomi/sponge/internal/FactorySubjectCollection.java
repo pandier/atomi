@@ -119,7 +119,7 @@ public class FactorySubjectCollection implements SubjectCollection {
 
     public class FactorySubject implements Subject {
         private final String identifier;
-        private final MemorySubjectData data = new MemorySubjectData(this);
+        private final MemorySubjectData data = new MemorySubjectData(() -> this);
 
         public FactorySubject(String identifier) {
             this.identifier = identifier;

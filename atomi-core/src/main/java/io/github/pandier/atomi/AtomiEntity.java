@@ -21,6 +21,10 @@ public interface AtomiEntity {
         data().setPermission(permission, value);
     }
 
+    default void clearPermissions() {
+        data().clearPermissions();
+    }
+
     @NotNull
     <T> Optional<T> option(@NotNull AtomiOption<T> option);
 

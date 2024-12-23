@@ -48,7 +48,11 @@ public abstract class AbstractEntitySubjectData implements SubjectData {
     public CompletableFuture<Boolean> setPermissions(Set<Context> contexts, Map<String, Boolean> permissions, TransferMethod method) {
         if (!contexts.isEmpty())
             return CompletableFuture.completedFuture(false);
-        throw new UnsupportedOperationException(); // TODO
+        if (method == TransferMethod.OVERWRITE)
+            subject().entity().data().clearPermissions();
+        for (Map.Entry<String, Boolean> entry : permissions.entrySet())
+            subject().entity().data().setPermission(entry.getKey(), io.github.pandier.atomi.Tristate.of(entry.getValue()));
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
@@ -79,14 +83,16 @@ public abstract class AbstractEntitySubjectData implements SubjectData {
 
     @Override
     public CompletableFuture<Boolean> clearPermissions() {
-        throw new UnsupportedOperationException(); // TODO
+        subject().entity().data().clearPermissions();
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
     public CompletableFuture<Boolean> clearPermissions(Set<Context> contexts) {
         if (!contexts.isEmpty())
             return CompletableFuture.completedFuture(false);
-        throw new UnsupportedOperationException(); // TODO
+        subject().entity().data().clearPermissions();
+        return CompletableFuture.completedFuture(true);
     }
 
     public abstract boolean isChildOf(SubjectReference reference);
@@ -171,11 +177,16 @@ public abstract class AbstractEntitySubjectData implements SubjectData {
 
     @Override
     public CompletableFuture<Boolean> copyFrom(SubjectData other, TransferMethod method) {
-        throw new UnsupportedOperationException(); // TODO
+        setPermissions(Set.of(), other.permissions(Set.of()), method);
+        setOptions(Set.of(), other.options(Set.of()), method);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
     public CompletableFuture<Boolean> moveFrom(SubjectData other, TransferMethod method) {
-        throw new UnsupportedOperationException(); // TODO
+        copyFrom(other, method);
+        other.clearPermissions();
+        other.clearOptions();
+        return CompletableFuture.completedFuture(true);
     }
 }

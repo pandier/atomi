@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public class GroupSubjectCollection extends AbstractSubjectCollection {
+    private final Map<String, MemorySubjectData> transientSubjectDatas = new HashMap<>();
 
     public GroupSubjectCollection(AtomiPermissionService service) {
         super(PermissionService.SUBJECTS_GROUP, service);
@@ -31,6 +32,12 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
         return new IllegalArgumentException("Group name '" + identifier + "' does not match the allowed format " + AbstractAtomi.GROUP_NAME_PATTERN.pattern());
     }
 
+    protected GroupSubject createSubject(AtomiGroup group) {
+        String identifier = group.name();
+        MemorySubjectData transientSubjectData = transientSubjectDatas.computeIfAbsent(identifier, x -> new MemorySubjectData(() -> subject(identifier).orElseThrow()));
+        return new GroupSubject(group, transientSubjectData, this);
+    }
+
     @Override
     public Subject loadSubjectInternal(String identifier) {
         return subject(identifier).orElseThrow(() -> new IllegalStateException("Could not find group '" + identifier + "'"));
@@ -38,7 +45,7 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public Optional<? extends Subject> subject(String identifier) {
-        return atomi().group(identifier).map(x -> new GroupSubject(x, this));
+        return atomi().group(identifier).map(this::createSubject);
     }
 
     @Override
@@ -48,7 +55,7 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public Collection<? extends Subject> loadedSubjects() {
-        return atomi().groups().stream().map(x -> new GroupSubject(x, this)).toList();
+        return atomi().groups().stream().map(this::createSubject).toList();
     }
 
     @Override
@@ -68,7 +75,7 @@ public class GroupSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public Map<? extends Subject, Boolean> loadedWithPermission(String permission) {
-        return findWithPermission(permission, x -> new GroupSubject(x, this));
+        return findWithPermission(permission, this::createSubject);
     }
 
     @Override

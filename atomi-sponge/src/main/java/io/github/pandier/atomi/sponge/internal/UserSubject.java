@@ -8,8 +8,8 @@ public class UserSubject extends AbstractEntitySubject {
     private final AtomiUser user;
     private final UserSubjectData data = new UserSubjectData(this);
 
-    public UserSubject(AtomiUser user, AbstractSubjectCollection collection) {
-        super(user.uuid().toString(), collection);
+    public UserSubject(AtomiUser user, MemorySubjectData transientSubjectData, AbstractSubjectCollection collection) {
+        super(user.uuid().toString(), transientSubjectData, collection);
         this.user = user;
     }
 

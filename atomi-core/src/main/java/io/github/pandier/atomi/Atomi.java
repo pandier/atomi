@@ -21,6 +21,11 @@ public interface Atomi {
     Optional<AtomiUser> userFromCache(@NotNull UUID uuid);
 
     @NotNull
+    Collection<AtomiUser> cachedUsers();
+
+    void unloadUser(@NotNull UUID uuid);
+
+    @NotNull
     Optional<AtomiGroup> group(@NotNull String name);
 
     boolean groupExists(@NotNull String name);

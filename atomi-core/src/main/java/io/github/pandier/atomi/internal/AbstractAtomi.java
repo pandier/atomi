@@ -120,6 +120,16 @@ public abstract class AbstractAtomi implements Atomi {
     }
 
     @Override
+    public @NotNull Collection<AtomiUser> cachedUsers() {
+        return Collections.unmodifiableCollection(userCache.values());
+    }
+
+    @Override
+    public void unloadUser(@NotNull UUID uuid) {
+        userCache.remove(uuid);
+    }
+
+    @Override
     public @NotNull Optional<AtomiGroup> group(@NotNull String name) {
         return Optional.ofNullable(groups.get(name));
     }
@@ -176,10 +186,6 @@ public abstract class AbstractAtomi implements Atomi {
     @Override
     public @NotNull AtomiGroup defaultGroup() {
         return getOrCreateGroup(DEFAULT_GROUP_NAME);
-    }
-
-    public void unloadUser(@NotNull UUID uuid) {
-        userCache.remove(uuid);
     }
 
     public void updateUser(@NotNull AtomiUser user, boolean save) {

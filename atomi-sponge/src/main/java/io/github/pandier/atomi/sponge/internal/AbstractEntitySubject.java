@@ -17,10 +17,12 @@ import java.util.Set;
 
 @ApiStatus.Internal
 public abstract class AbstractEntitySubject implements Subject {
+    private final MemorySubjectData transientSubjectData;
     private final String identifier;
     private final AbstractSubjectCollection collection;
 
-    public AbstractEntitySubject(String identifier, AbstractSubjectCollection collection) {
+    public AbstractEntitySubject(String identifier, MemorySubjectData transientSubjectData, AbstractSubjectCollection collection) {
+        this.transientSubjectData = transientSubjectData;
         this.identifier = identifier;
         this.collection = collection;
     }
@@ -52,7 +54,7 @@ public abstract class AbstractEntitySubject implements Subject {
 
     @Override
     public SubjectData transientSubjectData() {
-        throw new UnsupportedOperationException(); // TODO
+        return transientSubjectData;
     }
 
     @Override
@@ -62,8 +64,9 @@ public abstract class AbstractEntitySubject implements Subject {
 
     @Override
     public Tristate permissionValue(String permission, Set<Context> contexts) {
-        // TODO include transient subject data?
-        Tristate tristate = TristateUtil.spongeTristate(entity().permission(permission));
+        Tristate tristate = transientSubjectData.permissionValue(permission);
+        if (tristate == Tristate.UNDEFINED)
+            tristate = TristateUtil.spongeTristate(entity().permission(permission));
         if (tristate == Tristate.UNDEFINED)
             tristate = collection.defaults().permissionValue(permission);
         if (tristate == Tristate.UNDEFINED)
@@ -83,7 +86,6 @@ public abstract class AbstractEntitySubject implements Subject {
 
     @Override
     public List<? extends SubjectReference> parents() {
-        // TODO include transient subject data?
         return subjectData().parents(SubjectData.GLOBAL_CONTEXT);
     }
 
@@ -99,7 +101,6 @@ public abstract class AbstractEntitySubject implements Subject {
 
     @Override
     public Optional<String> option(String key, Cause cause) {
-        // TODO include transient subject data?
         return Optional.empty();
     }
 
