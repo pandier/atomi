@@ -12,7 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
-public class AtomiCommands {
+public class SpigotAtomiCommand {
 
     @Nullable
     private static String userDisplayName(AtomiUser user) {
@@ -29,7 +29,7 @@ public class AtomiCommands {
 
     public static void register(AtomiOptionRegistry optionRegistry) {
         registerWithCommands(
-                new UserCommand(optionRegistry, AtomiCommands::userDisplayName),
+                new UserCommand(optionRegistry, SpigotAtomiCommand::userDisplayName),
                 new GroupCommand(optionRegistry)
         );
     }

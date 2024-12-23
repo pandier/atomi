@@ -4,7 +4,7 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.pandier.atomi.AtomiOption;
 import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
-import io.github.pandier.atomi.spigot.internal.command.AtomiCommands;
+import io.github.pandier.atomi.spigot.internal.command.SpigotAtomiCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,7 +38,7 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
-        AtomiCommands.register(atomi.optionRegistry());
+        SpigotAtomiCommand.register(atomi.optionRegistry());
 
         // Initiate all players in case of a reload
         for (Player player : getServer().getOnlinePlayers()) {
@@ -48,7 +48,7 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        AtomiCommands.unregister();
+        SpigotAtomiCommand.unregister();
         CommandAPI.onDisable();
 
         for (Player player : getServer().getOnlinePlayers()) {
