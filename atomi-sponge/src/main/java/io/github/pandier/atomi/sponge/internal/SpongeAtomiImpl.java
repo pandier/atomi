@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 @ApiStatus.Internal
 public class SpongeAtomiImpl extends AbstractAtomi implements SpongeAtomi {
-    public SpongeAtomiImpl(Path path, Logger logger) {
-        super(path, new AtomiOptionRegistry(), logger::error);
+    public SpongeAtomiImpl(Path path, AtomiOptionRegistry optionRegistry, Logger logger) {
+        super(path, optionRegistry, logger::error);
     }
 }

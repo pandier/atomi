@@ -25,7 +25,7 @@ public class AtomiOptionRegistry {
         if (locked)
             throw new IllegalStateException("Option registry is locked");
         if (options.containsKey(option.name()))
-            throw new IllegalArgumentException("Option '" + option.name() + "' is already registered");
+            throw new IllegalArgumentException("Option with the name '" + option.name() + "' is already registered");
         options.put(option.name(), option);
     }
 
