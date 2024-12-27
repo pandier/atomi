@@ -73,17 +73,17 @@ public class UserSubjectCollection extends AbstractSubjectCollection {
 
     @Override
     public CompletableFuture<? extends Set<String>> allIdentifiers() {
-        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying identifiers of all users it not yet supported"));
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying identifiers of all users is not yet supported"));
     }
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission) {
-        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission it not yet supported"));
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission is not yet supported"));
     }
 
     @Override
     public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> allWithPermission(String permission, Cause cause) {
-        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission it not yet supported"));
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Querying all users with a permission is not yet supported"));
     }
 
     @Override
