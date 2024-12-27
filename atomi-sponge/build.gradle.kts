@@ -40,3 +40,18 @@ configurations.spongeRuntime {
         }
     }
 }
+
+tasks.assemble {
+    dependsOn(tasks.shadowJar)
+}
+
+tasks.shadowJar {
+    dependencies {
+        // We don't need these dependencies, because they are included in Sponge
+        exclude(dependency("com.google.code.gson:gson"))
+        exclude(dependency("com.google.errorprone:"))
+        exclude(dependency("org.jetbrains:annotations"))
+        exclude(dependency("net.kyori:"))
+        exclude("LICENSE")
+    }
+}
