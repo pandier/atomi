@@ -46,7 +46,7 @@ public abstract class AbstractAtomi implements Atomi {
     protected final ConcurrentMap<String, AtomiGroup> groups;
     protected final ConcurrentMap<UUID, AtomiUser> userCache = new ConcurrentHashMap<>();
 
-    protected AbstractAtomi(Path path, AtomiOptionRegistry optionRegistry, BiConsumer<String, Throwable> errorLogger) {
+    protected AbstractAtomi(AtomiOptionRegistry optionRegistry, Path path, BiConsumer<String, Throwable> errorLogger) {
         this.errorLogger = errorLogger;
         this.userFactory = createUserFactory();
         this.groupFactory = createGroupFactory();

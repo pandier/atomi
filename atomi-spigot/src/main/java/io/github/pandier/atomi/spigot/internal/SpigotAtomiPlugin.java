@@ -33,7 +33,7 @@ public class SpigotAtomiPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         CommandAPI.onEnable();
 
-        atomi = new SpigotAtomiImpl(getDataFolder().toPath(), OPTION_REGISTRY, this);
+        atomi = new SpigotAtomiImpl(this, OPTION_REGISTRY, getDataFolder().toPath());
 
         getServer().getPluginManager().registerEvents(this, this);
 

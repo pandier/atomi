@@ -33,8 +33,8 @@ public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
     protected final Map<UUID, EntityUpdateTask> userUpdateTasks = new ConcurrentHashMap<>();
     protected final Map<String, EntityUpdateTask> groupUpdateTasks = new ConcurrentHashMap<>();
 
-    SpigotAtomiImpl(Path path, AtomiOptionRegistry optionRegistry, Plugin plugin) {
-        super(path, optionRegistry, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
+    SpigotAtomiImpl(Plugin plugin, AtomiOptionRegistry optionRegistry, Path path) {
+        super(optionRegistry, path, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
         this.plugin = plugin;
     }
 

@@ -15,6 +15,7 @@ import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.*;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -46,7 +47,7 @@ public class SpongeAtomiPlugin {
         AtomiRegisterOptionEvent registerOptionEvent = new AtomiRegisterOptionEventImpl(optionRegistry, event.game(), cause);
         event.game().eventManager().post(registerOptionEvent);
 
-        atomi = new SpongeAtomiImpl(configPath, optionRegistry, logger);
+        atomi = new SpongeAtomiImpl(pluginContainer, optionRegistry, configPath, logger);
     }
 
     @Listener
@@ -62,5 +63,10 @@ public class SpongeAtomiPlugin {
     @Listener
     private void registerCommands(RegisterCommandEvent<Command.Raw> event) {
         event.register(pluginContainer, new SpongeAtomiCommand(atomi.optionRegistry()), "atomi");
+    }
+
+    @Listener
+    private void unloadUserOnLeave(ServerSideConnectionEvent.Leave event) {
+        atomi.unloadUser(event.player().uniqueId());
     }
 }
