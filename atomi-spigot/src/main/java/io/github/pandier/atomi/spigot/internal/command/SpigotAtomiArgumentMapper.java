@@ -1,13 +1,13 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
-import com.google.gson.JsonPrimitive;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.ResultingCommandExecutor;
 import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.AtomiOptionType;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class SpigotAtomiArgumentMapper {
@@ -53,7 +54,13 @@ public class SpigotAtomiArgumentMapper {
     @Nullable
     private Function<Object, Object> createArgumentMapper() {
         return switch (atomiArgument) {
-            case TextColorAtomiArgument ignored -> (x) -> AtomiOptionType.TEXT_COLOR.deserializeFromJson(new JsonPrimitive(x.toString()));
+            case TextColorAtomiArgument ignored -> (x) -> {
+                String name = x.toString();
+                return Optional.ofNullable(TextColor.fromHexString(name))
+                        .or(() -> Optional.ofNullable(NamedTextColor.NAMES.value(name)))
+                        .or(() -> Optional.ofNullable(TextColor.fromHexString(TextColor.HEX_PREFIX + name)))
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown color '" + name + "'"));
+            };
             case UserAtomiArgument ignored -> (x) -> SpigotAtomi.get().user((OfflinePlayer) x);
             case GroupAtomiArgument ignored -> (x) -> {
                 AtomiGroup group = SpigotAtomi.get().group((String) x).orElse(null);
