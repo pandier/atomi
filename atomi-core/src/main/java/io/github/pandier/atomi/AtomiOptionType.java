@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import io.github.pandier.atomi.internal.option.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +17,7 @@ public interface AtomiOptionType<T> {
     AtomiOptionType<Double> DOUBLE = new DoubleAtomiOptionType();
     AtomiOptionType<Component> COMPONENT = new ComponentAtomiOptionType();
     AtomiOptionType<NamedTextColor> NAMED_TEXT_COLOR = new NamedTextColorAtomiOptionType();
+    AtomiOptionType<TextColor> TEXT_COLOR = new TextColorOptionType();
 
     @NotNull
     Class<T> classType();

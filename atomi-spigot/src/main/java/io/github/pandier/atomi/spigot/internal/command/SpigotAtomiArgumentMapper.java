@@ -1,8 +1,10 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
+import com.google.gson.JsonPrimitive;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.ResultingCommandExecutor;
 import io.github.pandier.atomi.AtomiGroup;
+import io.github.pandier.atomi.AtomiOptionType;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
@@ -40,6 +42,7 @@ public class SpigotAtomiArgumentMapper {
             case BooleanAtomiArgument bool -> new BooleanArgument(bool.name());
             case ComponentAtomiArgument textComponent -> new AdventureChatComponentArgument(textComponent.name());
             case NamedTextColorAtomiArgument namedTextColor -> new AdventureChatColorArgument(namedTextColor.name());
+            case TextColorAtomiArgument textColor -> new TextArgument(textColor.name());
             case GroupAtomiArgument group -> new StringArgument(group.name())
                     .includeSuggestions(ArgumentSuggestions.strings(x -> SpigotAtomi.get().groupNames().toArray(new String[0])));
             case UserAtomiArgument user -> new OfflinePlayerArgument(user.name());
@@ -50,6 +53,7 @@ public class SpigotAtomiArgumentMapper {
     @Nullable
     private Function<Object, Object> createArgumentMapper() {
         return switch (atomiArgument) {
+            case TextColorAtomiArgument ignored -> (x) -> AtomiOptionType.TEXT_COLOR.deserializeFromJson(new JsonPrimitive(x.toString()));
             case UserAtomiArgument ignored -> (x) -> SpigotAtomi.get().user((OfflinePlayer) x);
             case GroupAtomiArgument ignored -> (x) -> {
                 AtomiGroup group = SpigotAtomi.get().group((String) x).orElse(null);

@@ -6,10 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
-import io.github.pandier.atomi.sponge.internal.command.brigadier.AtomiGroupArgumentType;
-import io.github.pandier.atomi.sponge.internal.command.brigadier.AtomiUserArgumentType;
-import io.github.pandier.atomi.sponge.internal.command.brigadier.ComponentArgumentType;
-import io.github.pandier.atomi.sponge.internal.command.brigadier.NamedTextColorArgumentType;
+import io.github.pandier.atomi.sponge.internal.command.brigadier.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.CommandCause;
@@ -43,6 +40,7 @@ public class SpongeAtomiArgumentMapper {
         registerWithType(BooleanAtomiArgument.class, x -> BoolArgumentType.bool(),x -> CommandTreeNodeTypes.BOOL.get().createNode());
         registerWithType(ComponentAtomiArgument.class, x -> ComponentArgumentType.component(), x -> CommandTreeNodeTypes.COMPONENT.get().createNode());
         registerWithType(NamedTextColorAtomiArgument.class, x -> NamedTextColorArgumentType.namedTextColor(), x -> CommandTreeNodeTypes.COLOR.get().createNode());
+        registerWithType(TextColorAtomiArgument.class, x -> TextColorArgumentType.textColor(), x -> CommandTreeNodeTypes.STRING.get().createNode());
         registerWithType(UserAtomiArgument.class, x -> AtomiUserArgumentType.atomiUser(), x -> CommandTreeNodeTypes.STRING.get().createNode().word().customCompletions());
         registerWithType(GroupAtomiArgument.class, x -> AtomiGroupArgumentType.atomiGroup(), x -> CommandTreeNodeTypes.STRING.get().createNode().word().customCompletions());
     }
