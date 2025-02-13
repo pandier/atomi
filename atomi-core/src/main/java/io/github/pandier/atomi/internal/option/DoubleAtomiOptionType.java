@@ -11,7 +11,7 @@ public class DoubleAtomiOptionType implements ArgumentableAtomiOptionType<Double
 
     @Override
     public @NotNull Class<Double> classType() {
-        return double.class;
+        return Double.class;
     }
 
     @Override

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class BooleanAtomiOptionType implements ArgumentableAtomiOptionType<Boolean> {
     @Override
     public @NotNull Class<Boolean> classType() {
-        return boolean.class;
+        return Boolean.class;
     }
 
     @Override

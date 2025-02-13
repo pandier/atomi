@@ -11,7 +11,7 @@ public class LongAtomiOptionType implements ArgumentableAtomiOptionType<Long> {
 
     @Override
     public @NotNull Class<Long> classType() {
-        return long.class;
+        return Long.class;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class FloatAtomiOptionType implements ArgumentableAtomiOptionType<Float> 
 
     @Override
     public @NotNull Class<Float> classType() {
-        return float.class;
+        return Float.class;
     }
 
     @Override
