@@ -15,6 +15,7 @@ public interface AtomiOptionType<T> {
     AtomiOptionType<Long> LONG = new LongAtomiOptionType();
     AtomiOptionType<Float> FLOAT = new FloatAtomiOptionType();
     AtomiOptionType<Double> DOUBLE = new DoubleAtomiOptionType();
+    AtomiOptionType<Boolean> BOOLEAN = new BooleanAtomiOptionType();
     AtomiOptionType<Component> COMPONENT = new ComponentAtomiOptionType();
     AtomiOptionType<NamedTextColor> NAMED_TEXT_COLOR = new NamedTextColorAtomiOptionType();
     AtomiOptionType<TextColor> TEXT_COLOR = new TextColorOptionType();
