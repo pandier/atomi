@@ -1,10 +1,12 @@
 package io.github.pandier.atomi.paper.internal.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
 import io.github.pandier.atomi.paper.internal.command.argument.AtomiGroupArgumentType;
@@ -71,7 +73,11 @@ public class PaperAtomiArgumentMapper {
     @NotNull
     private Command<CommandSourceStack> mapExecutor(@NotNull AtomiCommandExecutor executor) {
         return (ctx) -> {
-            return executor.execute(new PaperAtomiCommandContext(ctx, resolveArgumentOverrides(ctx))) ? 1 : 0;
+            try {
+                return executor.execute(new PaperAtomiCommandContext(ctx, resolveArgumentOverrides(ctx))) ? 1 : 0;
+            } catch (IllegalArgumentException ex) {
+                throw new SimpleCommandExceptionType(new LiteralMessage(ex.getMessage())).create();
+            }
         };
     }
 
