@@ -1,7 +1,7 @@
-package io.github.pandier.atomi.spigot.internal.inject;
+package io.github.pandier.atomi.paper.internal.inject;
 
-import io.github.pandier.atomi.spigot.internal.AtomiPermissible;
-import io.github.pandier.atomi.spigot.internal.reflect.SpigotReflection;
+import io.github.pandier.atomi.paper.internal.AtomiPermissible;
+import io.github.pandier.atomi.paper.internal.reflect.PaperReflection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.jetbrains.annotations.ApiStatus;
@@ -17,7 +17,7 @@ public class AtomiPermissibleInjector {
 
     static {
         try {
-            PERMISSIBLE_FIELD = SpigotReflection.getCraftBukkitClass("entity.CraftHumanEntity").getDeclaredField("perm");
+            PERMISSIBLE_FIELD = PaperReflection.getCraftBukkitClass("entity.CraftHumanEntity").getDeclaredField("perm");
             PERMISSIBLE_FIELD.setAccessible(true);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to inject into CraftBukkit", e);

@@ -12,7 +12,6 @@ plugins {
 }
 
 repositories {
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.papermc.io/repository/maven-public/") {
         name = "papermc"
     }
@@ -41,8 +40,9 @@ tasks {
     }
 
     shadowJar {
-        // In case we need to include dependencies in the future
-        configurations = listOf()
+        dependencies {
+            include(project(":atomi-core"))
+        }
     }
 
     runServer {

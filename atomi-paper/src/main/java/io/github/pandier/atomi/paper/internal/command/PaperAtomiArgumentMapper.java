@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot.internal.command;
+package io.github.pandier.atomi.paper.internal.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.*;
@@ -7,9 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
-import io.github.pandier.atomi.spigot.internal.command.argument.AtomiGroupArgumentType;
-import io.github.pandier.atomi.spigot.internal.command.argument.AtomiUserArgumentResolver;
-import io.github.pandier.atomi.spigot.internal.command.argument.AtomiUserArgumentType;
+import io.github.pandier.atomi.paper.internal.command.argument.AtomiGroupArgumentType;
+import io.github.pandier.atomi.paper.internal.command.argument.AtomiUserArgumentResolver;
+import io.github.pandier.atomi.paper.internal.command.argument.AtomiUserArgumentType;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -19,11 +19,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpigotAtomiArgumentMapper {
+public class PaperAtomiArgumentMapper {
     private final AtomiArgument<?> atomiArgument;
     private final Map<String, ArgumentOverride<?>> argumentOverrides;
 
-    private SpigotAtomiArgumentMapper(AtomiArgument<?> atomiArgument, Map<String, ArgumentOverride<?>> argumentOverrides) {
+    private PaperAtomiArgumentMapper(AtomiArgument<?> atomiArgument, Map<String, ArgumentOverride<?>> argumentOverrides) {
         this.atomiArgument = atomiArgument;
         this.argumentOverrides = argumentOverrides;
     }
@@ -71,7 +71,7 @@ public class SpigotAtomiArgumentMapper {
     @NotNull
     private Command<CommandSourceStack> mapExecutor(@NotNull AtomiCommandExecutor executor) {
         return (ctx) -> {
-            return executor.execute(new SpigotAtomiCommandContext(ctx, resolveArgumentOverrides(ctx))) ? 1 : 0;
+            return executor.execute(new PaperAtomiCommandContext(ctx, resolveArgumentOverrides(ctx))) ? 1 : 0;
         };
     }
 
@@ -84,7 +84,7 @@ public class SpigotAtomiArgumentMapper {
         ArgumentBuilder<CommandSourceStack, ?> argument = createArgument();
 
         for (AtomiArgument<?> child : atomiArgument.children()) {
-            SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(child, new HashMap<>(argumentOverrides));
+            PaperAtomiArgumentMapper mapper = new PaperAtomiArgumentMapper(child, new HashMap<>(argumentOverrides));
             argument.then(mapper.map());
         }
 
@@ -97,7 +97,7 @@ public class SpigotAtomiArgumentMapper {
 
     @NotNull
     public static ArgumentBuilder<CommandSourceStack, ?> map(@NotNull AtomiArgument<?> atomiArgument) {
-        SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(atomiArgument, new HashMap<>());
+        PaperAtomiArgumentMapper mapper = new PaperAtomiArgumentMapper(atomiArgument, new HashMap<>());
         return mapper.map();
     }
 

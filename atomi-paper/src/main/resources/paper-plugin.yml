@@ -3,5 +3,5 @@ version: '${version}'
 description: '${description}'
 website: 'https://github.com/pandier/atomi'
 author: Pandier
-main: io.github.pandier.atomi.spigot.internal.SpigotAtomiPlugin
+main: io.github.pandier.atomi.paper.internal.PaperAtomiPlugin
 api-version: '1.21.10'

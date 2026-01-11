@@ -1,11 +1,11 @@
-package io.github.pandier.atomi.spigot.internal.reflect;
+package io.github.pandier.atomi.paper.internal.reflect;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
-public class SpigotReflection {
+public class PaperReflection {
     private static final String CRAFT_BUKKIT_PACKAGE;
 
     static {

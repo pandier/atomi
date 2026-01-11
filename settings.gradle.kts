@@ -1,3 +1,3 @@
 rootProject.name = "atomi"
 
-include("atomi-core", "atomi-spigot", "atomi-sponge")
+include("atomi-core", "atomi-paper", "atomi-sponge")

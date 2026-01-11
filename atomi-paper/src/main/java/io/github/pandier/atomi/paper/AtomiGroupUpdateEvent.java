@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot;
+package io.github.pandier.atomi.paper;
 
 import io.github.pandier.atomi.AtomiGroup;
 import org.bukkit.event.Event;

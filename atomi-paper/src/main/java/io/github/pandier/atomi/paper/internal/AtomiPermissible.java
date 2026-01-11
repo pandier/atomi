@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot.internal;
+package io.github.pandier.atomi.paper.internal;
 
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.Tristate;
@@ -72,7 +72,7 @@ public class AtomiPermissible extends PermissibleBase {
         PermissionAttachment attachment = addAttachment(plugin);
 
         if (Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, attachment::remove, ticks) == -1) {
-            SpigotAtomiPlugin.atomi.plugin.getLogger().log(Level.SEVERE, "Failed to add permission attachment to " + parent + " for plugin " + plugin.getDescription().getFullName() + ": scheduler returned -1");
+            PaperAtomiPlugin.atomi.plugin.getLogger().log(Level.SEVERE, "Failed to add permission attachment to " + parent + " for plugin " + plugin.getDescription().getFullName() + ": scheduler returned -1");
             attachment.remove();
             return null;
         }

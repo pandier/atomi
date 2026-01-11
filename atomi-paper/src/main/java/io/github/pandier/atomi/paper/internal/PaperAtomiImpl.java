@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot.internal;
+package io.github.pandier.atomi.paper.internal;
 
 import io.github.pandier.atomi.AtomiGroup;
 import io.github.pandier.atomi.AtomiUser;
@@ -6,10 +6,10 @@ import io.github.pandier.atomi.Tristate;
 import io.github.pandier.atomi.internal.AbstractAtomi;
 import io.github.pandier.atomi.internal.DefaultPermissionProvider;
 import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
-import io.github.pandier.atomi.spigot.AtomiGroupUpdateEvent;
-import io.github.pandier.atomi.spigot.AtomiUserUpdateEvent;
-import io.github.pandier.atomi.spigot.SpigotAtomi;
-import io.github.pandier.atomi.spigot.internal.inject.AtomiPermissibleInjector;
+import io.github.pandier.atomi.paper.AtomiGroupUpdateEvent;
+import io.github.pandier.atomi.paper.AtomiUserUpdateEvent;
+import io.github.pandier.atomi.paper.PaperAtomi;
+import io.github.pandier.atomi.paper.internal.inject.AtomiPermissibleInjector;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
@@ -27,13 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 @ApiStatus.Internal
-public class SpigotAtomiImpl extends AbstractAtomi implements SpigotAtomi {
+public class PaperAtomiImpl extends AbstractAtomi implements PaperAtomi {
     protected final Plugin plugin;
 
     protected final Map<UUID, EntityUpdateTask> userUpdateTasks = new ConcurrentHashMap<>();
     protected final Map<String, EntityUpdateTask> groupUpdateTasks = new ConcurrentHashMap<>();
 
-    SpigotAtomiImpl(Plugin plugin, AtomiOptionRegistry optionRegistry, Path path) {
+    PaperAtomiImpl(Plugin plugin, AtomiOptionRegistry optionRegistry, Path path) {
         super(optionRegistry, path, (msg, t) -> plugin.getLogger().log(Level.SEVERE, msg, t));
         this.plugin = plugin;
     }

@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot.internal.command.argument;
+package io.github.pandier.atomi.paper.internal.command.argument;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.pandier.atomi.AtomiUser;

@@ -1,4 +1,4 @@
-package io.github.pandier.atomi.spigot.internal.command.argument;
+package io.github.pandier.atomi.paper.internal.command.argument;
 
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
@@ -10,7 +10,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.pandier.atomi.AtomiGroup;
-import io.github.pandier.atomi.spigot.SpigotAtomi;
+import io.github.pandier.atomi.paper.PaperAtomi;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ public class AtomiGroupArgumentType implements CustomArgumentType<@NotNull Atomi
     @Override
     public @NotNull AtomiGroup parse(@NotNull StringReader reader) throws CommandSyntaxException {
         String name = getNativeType().parse(reader);
-        Optional<AtomiGroup> group = SpigotAtomi.get().group(name);
+        Optional<AtomiGroup> group = PaperAtomi.get().group(name);
         if (group.isEmpty())
             throw UNKNOWN_GROUP_EXCEPTION.create(name);
         return group.get();
@@ -40,7 +40,7 @@ public class AtomiGroupArgumentType implements CustomArgumentType<@NotNull Atomi
 
     @Override
     public <S> @NotNull CompletableFuture<Suggestions> listSuggestions(@NotNull CommandContext<S> context, @NotNull SuggestionsBuilder builder) {
-        for (String group : SpigotAtomi.get().groupNames())
+        for (String group : PaperAtomi.get().groupNames())
             if (group.startsWith(builder.getRemaining()))
                 builder.suggest(group);
         return CompletableFuture.completedFuture(builder.build());

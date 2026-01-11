@@ -1,10 +1,10 @@
-package io.github.pandier.atomi.spigot.internal.command.argument;
+package io.github.pandier.atomi.paper.internal.command.argument;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.pandier.atomi.spigot.SpigotAtomi;
+import io.github.pandier.atomi.paper.PaperAtomi;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver;
@@ -27,7 +27,7 @@ public class AtomiUserArgumentType implements CustomArgumentType<@NotNull AtomiU
             if (profile.getId() == null) {
                 throw new IllegalStateException("Missing UUID");
             }
-            return SpigotAtomi.get().user(profile.getId());
+            return PaperAtomi.get().user(profile.getId());
         };
     }
 
