@@ -1,9 +1,8 @@
 [versions]
 jetbrains-annotations = "26.0.1"
-adventure = "4.17.0"
+adventure = "4.25.0"
 gson = "2.11.0"
-spigot = "1.20.6-R0.1-SNAPSHOT"
-commandapi = "9.5.2"
+paper = "1.21.10-R0.1-SNAPSHOT"
 brigadier = "1.0.18"
 
 [libraries]
@@ -12,6 +11,5 @@ adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" 
 adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
 adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
-spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
-commandapi-bukkit = { module = "dev.jorel:commandapi-bukkit-shade", version.ref = "commandapi" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }

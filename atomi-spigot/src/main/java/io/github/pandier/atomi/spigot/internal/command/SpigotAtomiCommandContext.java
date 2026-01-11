@@ -1,30 +1,34 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
+import com.mojang.brigadier.context.CommandContext;
 import io.github.pandier.atomi.internal.command.AtomiCommandContext;
 import io.github.pandier.atomi.spigot.SpigotAtomi;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class SpigotAtomiCommandContext extends AtomiCommandContext {
-    private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
-            .character(LegacyComponentSerializer.SECTION_CHAR)
-            .hexColors()
-            .useUnusualXRepeatedCharacterHexFormat()
-            .build();
+    private final CommandContext<CommandSourceStack> ctx;
+    private final Map<String, Object> overrides;
 
-    private final CommandSender sender;
-
-    public SpigotAtomiCommandContext(@NotNull CommandSender sender, @NotNull Map<String, Object> arguments) {
-        super(SpigotAtomi.get(), arguments);
-        this.sender = sender;
+    public SpigotAtomiCommandContext(@NotNull CommandContext<CommandSourceStack> ctx, @NotNull Map<String, Object> overrides) {
+        super(SpigotAtomi.get());
+        this.ctx = ctx;
+        this.overrides = overrides;
     }
 
     @Override
     public void sendMessage(@NotNull Component component) {
-        sender.sendMessage(LEGACY_COMPONENT_SERIALIZER.serialize(component));
+        ctx.getSource().getSender().sendMessage(component);
+    }
+
+    @Override
+    public <T> T get(@NotNull String key, @NotNull Class<T> type) {
+        if (overrides.containsKey(key)) {
+            return type.cast(overrides.get(key));
+        }
+        return ctx.getArgument(key, type);
     }
 }

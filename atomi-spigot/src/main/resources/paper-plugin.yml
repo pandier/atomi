@@ -1,7 +1,7 @@
 name: Atomi
-version: ${version}
-description: ${description}
+version: '${version}'
+description: '${description}'
 website: 'https://github.com/pandier/atomi'
 author: Pandier
 main: io.github.pandier.atomi.spigot.internal.SpigotAtomiPlugin
-api-version: 1.20
+api-version: '1.21.10'

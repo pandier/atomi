@@ -1,108 +1,90 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
-import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.executors.ResultingCommandExecutor;
-import io.github.pandier.atomi.AtomiGroup;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.*;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.pandier.atomi.internal.command.AtomiCommandExecutor;
 import io.github.pandier.atomi.internal.command.argument.*;
-import io.github.pandier.atomi.spigot.SpigotAtomi;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import io.github.pandier.atomi.spigot.internal.command.argument.AtomiGroupArgumentType;
+import io.github.pandier.atomi.spigot.internal.command.argument.AtomiUserArgumentResolver;
+import io.github.pandier.atomi.spigot.internal.command.argument.AtomiUserArgumentType;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 public class SpigotAtomiArgumentMapper {
     private final AtomiArgument<?> atomiArgument;
-    private final Map<String, Function<Object, Object>> argumentMappers;
+    private final Map<String, ArgumentOverride<?>> argumentOverrides;
 
-    private SpigotAtomiArgumentMapper(AtomiArgument<?> atomiArgument, Map<String, Function<Object, Object>> argumentMappers) {
+    private SpigotAtomiArgumentMapper(AtomiArgument<?> atomiArgument, Map<String, ArgumentOverride<?>> argumentOverrides) {
         this.atomiArgument = atomiArgument;
-        this.argumentMappers = argumentMappers;
+        this.argumentOverrides = argumentOverrides;
     }
 
     @NotNull
-    private Argument<?> createArgument() {
+    private ArgumentBuilder<CommandSourceStack, ?> createArgument() {
         return switch (atomiArgument) {
-            case LiteralAtomiArgument literal -> new LiteralArgument(literal.name());
+            case LiteralAtomiArgument literal -> Commands.literal(literal.name());
             case StringAtomiArgument string -> switch (string.type()) {
-                case WORD -> new StringArgument(string.name());
-                case STRING -> new TextArgument(string.name());
-                case GREEDY -> new GreedyStringArgument(string.name());
+                case WORD -> Commands.argument(string.name(), StringArgumentType.word());
+                case STRING -> Commands.argument(string.name(), StringArgumentType.string());
+                case GREEDY -> Commands.argument(string.name(), StringArgumentType.greedyString());
             };
-            case IntegerAtomiArgument integer -> new IntegerArgument(integer.name());
-            case LongAtomiArgument longArg -> new LongArgument(longArg.name());
-            case FloatAtomiArgument floatArg -> new FloatArgument(floatArg.name());
-            case DoubleAtomiArgument doubleArg -> new DoubleArgument(doubleArg.name());
-            case BooleanAtomiArgument bool -> new BooleanArgument(bool.name());
-            case ComponentAtomiArgument textComponent -> new AdventureChatComponentArgument(textComponent.name());
-            case NamedTextColorAtomiArgument namedTextColor -> new AdventureChatColorArgument(namedTextColor.name());
-            case TextColorAtomiArgument textColor -> new TextArgument(textColor.name());
-            case GroupAtomiArgument group -> new StringArgument(group.name())
-                    .includeSuggestions(ArgumentSuggestions.strings(x -> SpigotAtomi.get().groupNames().toArray(new String[0])));
-            case UserAtomiArgument user -> new OfflinePlayerArgument(user.name());
+            case IntegerAtomiArgument integer -> Commands.argument(integer.name(), IntegerArgumentType.integer());
+            case LongAtomiArgument longArg -> Commands.argument(longArg.name(), LongArgumentType.longArg());
+            case FloatAtomiArgument floatArg -> Commands.argument(floatArg.name(), FloatArgumentType.floatArg());
+            case DoubleAtomiArgument doubleArg -> Commands.argument(doubleArg.name(), DoubleArgumentType.doubleArg());
+            case BooleanAtomiArgument bool -> Commands.argument(bool.name(), BoolArgumentType.bool());
+            case ComponentAtomiArgument textComponent -> Commands.argument(textComponent.name(), ArgumentTypes.component());
+            case NamedTextColorAtomiArgument namedTextColor -> Commands.argument(namedTextColor.name(), ArgumentTypes.namedColor());
+            case TextColorAtomiArgument textColor -> Commands.argument(textColor.name(), ArgumentTypes.hexColor());
+            case GroupAtomiArgument group -> Commands.argument(group.name(), new AtomiGroupArgumentType());
+            case UserAtomiArgument user -> Commands.argument(user.name(), new AtomiUserArgumentType());
             default -> throw new IllegalArgumentException("Unknown argument type " + atomiArgument.getClass());
         };
     }
 
     @Nullable
-    private Function<Object, Object> createArgumentMapper() {
-        return switch (atomiArgument) {
-            case TextColorAtomiArgument ignored -> (x) -> {
-                String name = x.toString();
-                return Optional.ofNullable(TextColor.fromHexString(name))
-                        .or(() -> Optional.ofNullable(NamedTextColor.NAMES.value(name)))
-                        .or(() -> Optional.ofNullable(TextColor.fromHexString(TextColor.HEX_PREFIX + name)))
-                        .orElseThrow(() -> new IllegalArgumentException("Unknown color '" + name + "'"));
-            };
-            case UserAtomiArgument ignored -> (x) -> SpigotAtomi.get().user((OfflinePlayer) x);
-            case GroupAtomiArgument ignored -> (x) -> {
-                AtomiGroup group = SpigotAtomi.get().group((String) x).orElse(null);
-                if (group == null) throw new IllegalArgumentException("Couldn't find group with the name '" + x + "'");
-                return group;
-            };
-            default -> null;
-        };
+    private ArgumentOverride<?> createArgumentOverride() {
+        if (atomiArgument instanceof UserAtomiArgument) {
+            return new ArgumentOverride<>(AtomiUserArgumentResolver.class, AtomiUserArgumentResolver::resolve);
+        }
+        return null;
     }
 
     @NotNull
-    private Map<String, Object> mapArgumentValues(@NotNull Map<String, Object> arguments) {
+    private Map<String, Object> resolveArgumentOverrides(@NotNull CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         Map<String, Object> mappedArguments = new HashMap<>();
-        for (Map.Entry<String, Object> entry : arguments.entrySet()) {
-            Function<Object, Object> mapper = argumentMappers.get(entry.getKey());
-            mappedArguments.put(entry.getKey(), mapper != null ? mapper.apply(entry.getValue()) : entry.getValue());
+        for (Map.Entry<String, ArgumentOverride<?>> entry : this.argumentOverrides.entrySet()) {
+            mappedArguments.put(entry.getKey(), entry.getValue().resolve(ctx, entry.getKey()));
         }
         return mappedArguments;
     }
 
     @NotNull
-    private ResultingCommandExecutor mapExecutor(@NotNull AtomiCommandExecutor executor) {
-        return (sender, args) -> {
-            try {
-                return executor.execute(new SpigotAtomiCommandContext(sender, mapArgumentValues(args.argsMap()))) ? 1 : 0;
-            } catch (IllegalArgumentException ex) {
-                sender.sendMessage(ChatColor.RED + ex.getMessage());
-                return 0;
-            }
+    private Command<CommandSourceStack> mapExecutor(@NotNull AtomiCommandExecutor executor) {
+        return (ctx) -> {
+            return executor.execute(new SpigotAtomiCommandContext(ctx, resolveArgumentOverrides(ctx))) ? 1 : 0;
         };
     }
 
     @NotNull
-    private Argument<?> map() {
-        Function<Object, Object> argumentMapper = createArgumentMapper();
-        if (argumentMapper != null)
-            argumentMappers.put(atomiArgument.name(), argumentMapper);
+    private ArgumentBuilder<CommandSourceStack, ?> map() {
+        ArgumentOverride<?> argumentOverride = createArgumentOverride();
+        if (argumentOverride != null)
+            argumentOverrides.put(atomiArgument.name(), argumentOverride);
 
-        Argument<?> argument = createArgument();
+        ArgumentBuilder<CommandSourceStack, ?> argument = createArgument();
 
         for (AtomiArgument<?> child : atomiArgument.children()) {
-            SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(child, new HashMap<>(argumentMappers));
+            SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(child, new HashMap<>(argumentOverrides));
             argument.then(mapper.map());
         }
 
@@ -114,8 +96,20 @@ public class SpigotAtomiArgumentMapper {
     }
 
     @NotNull
-    public static Argument<?> map(@NotNull AtomiArgument<?> atomiArgument) {
+    public static ArgumentBuilder<CommandSourceStack, ?> map(@NotNull AtomiArgument<?> atomiArgument) {
         SpigotAtomiArgumentMapper mapper = new SpigotAtomiArgumentMapper(atomiArgument, new HashMap<>());
         return mapper.map();
+    }
+
+    public record ArgumentOverride<T>(Class<T> originalType, ArgumentOverrideResolver<T> resolver) {
+        public Object resolve(@NotNull CommandContext<CommandSourceStack> ctx, @NotNull String name) throws CommandSyntaxException {
+            T original = ctx.getArgument(name, originalType);
+            return resolver.resolve(original, ctx.getSource());
+        }
+    }
+
+    @FunctionalInterface
+    public interface ArgumentOverrideResolver<T> {
+        Object resolve(@NotNull T argument, @NotNull CommandSourceStack source) throws CommandSyntaxException;
     }
 }

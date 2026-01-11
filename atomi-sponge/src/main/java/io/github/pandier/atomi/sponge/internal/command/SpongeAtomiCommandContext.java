@@ -13,7 +13,7 @@ public class SpongeAtomiCommandContext extends AtomiCommandContext {
     private final CommandContext<CommandCause> ctx;
 
     public SpongeAtomiCommandContext(@NotNull CommandContext<CommandCause> ctx) {
-        super(SpongeAtomi.get(), Map.of());
+        super(SpongeAtomi.get());
         this.ctx = ctx;
     }
 

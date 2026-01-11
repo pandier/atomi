@@ -1,40 +1,52 @@
+import org.gradle.kotlin.dsl.assemble
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.processResources
+import org.gradle.kotlin.dsl.runServer
+import org.gradle.kotlin.dsl.shadowJar
+
 plugins {
     id("atomi.java-conventions")
     id("atomi.publication-conventions")
     id("com.gradleup.shadow") version "8.3.4"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 repositories {
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public/") {
+        name = "papermc"
+    }
 }
 
 dependencies {
     api(project(":atomi-core"))
 
-    compileOnly(libs.spigot.api)
+    compileOnly(libs.paper.api)
 
     implementation(libs.adventure.text.serializer.legacy)
-    implementation(libs.commandapi.bukkit)
 }
 
-tasks.processResources {
-    filesMatching("plugin.yml") {
-        expand("version" to version, "description" to description)
+tasks {
+    processResources {
+        val properties = mapOf("version" to project.version, "description" to project.description)
+
+        inputs.properties(properties)
+        filesMatching("paper-plugin.yml") {
+            expand(properties)
+        }
+    }
+
+    assemble {
+        dependsOn(shadowJar)
+    }
+
+    shadowJar {
+        // In case we need to include dependencies in the future
+        configurations = listOf()
+    }
+
+    runServer {
+        minecraftVersion("1.21.11")
     }
 }
 
-tasks.assemble {
-    dependsOn(tasks.shadowJar)
-}
-
-tasks.shadowJar {
-    dependencies {
-        // We don't need these dependencies, because they are included in Spigot
-        exclude(dependency("com.google.code.gson:gson"))
-        exclude(dependency("com.google.errorprone:"))
-        exclude(dependency("org.jetbrains:annotations"))
-        exclude("LICENSE")
-    }
-
-    relocate("dev.jorel.commandapi", "io.github.pandier.atomi.spigot.commandapi")
-}

@@ -1,12 +1,14 @@
 package io.github.pandier.atomi.spigot.internal.command;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandTree;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.pandier.atomi.AtomiUser;
 import io.github.pandier.atomi.internal.command.AbstractCommand;
 import io.github.pandier.atomi.internal.command.GroupCommand;
 import io.github.pandier.atomi.internal.command.UserCommand;
 import io.github.pandier.atomi.internal.option.AtomiOptionRegistry;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -19,22 +21,18 @@ public class SpigotAtomiCommand {
         return Bukkit.getOfflinePlayer(user.uuid()).getName();
     }
 
-    private static void registerWithCommands(AbstractCommand... commands) {
-        CommandTree atomi = new CommandTree("atomi")
-                .withPermission("atomi.command");
+    private static LiteralCommandNode<CommandSourceStack> createWithCommands(AbstractCommand... commands) {
+        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("atomi")
+                .requires(source -> source.getSender().hasPermission("atomi.command"));
         for (AbstractCommand command : commands)
-            atomi.then(SpigotAtomiArgumentMapper.map(command.create()));
-        atomi.register();
+            builder.then(SpigotAtomiArgumentMapper.map(command.create()));
+        return builder.build();
     }
 
-    public static void register(AtomiOptionRegistry optionRegistry) {
-        registerWithCommands(
+    public static LiteralCommandNode<CommandSourceStack> create(AtomiOptionRegistry optionRegistry) {
+        return createWithCommands(
                 new UserCommand(optionRegistry, SpigotAtomiCommand::userDisplayName),
                 new GroupCommand(optionRegistry)
         );
-    }
-
-    public static void unregister() {
-        CommandAPI.unregister("atomi");
     }
 }
